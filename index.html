@@ -23,41 +23,113 @@
       box-sizing: border-box;
     }
 
+    /* 1. CABEÇALHO E STATUS ONLINE */
     .header {
-      text-align: center;
       margin-bottom: 20px;
-      padding-top: 10px;
     }
 
-    .header h1 {
-      margin: 0;
-      font-size: 22px;
+    .top-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .user-greeting {
+      font-size: 18px;
+      font-weight: bold;
       color: var(--primary-color);
     }
 
-    .header p {
-      margin-top: 6px;
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      background: rgba(46, 125, 50, 0.1);
+      color: #2e7d32;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #2e7d32;
+      border-radius: 50%;
+      box-shadow: 0 0 0 rgba(46, 125, 50, 0.4);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7); }
+      70% { box-shadow: 0 0 0 6px rgba(46, 125, 50, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
+    }
+
+    .subtitle {
+      margin: 0;
       font-size: 13px;
       color: var(--hint-color);
+    }
+
+    /* 2. DASHBOARD DE RESUMO (KPIs) */
+    .kpi-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-card {
+      background: var(--secondary-bg);
+      border-radius: 10px;
+      padding: 10px 6px;
+      text-align: center;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .kpi-value {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+
+    .kpi-label {
+      font-size: 10px;
+      color: var(--hint-color);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* 3. MENU PRINCIPAL & ATALHOS RÁPIDOS */
+    .section-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--hint-color);
+      text-transform: uppercase;
+      margin-bottom: 8px;
     }
 
     .menu-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 12px;
+      gap: 10px;
+      margin-bottom: 20px;
     }
 
     .menu-card {
       background: var(--secondary-bg);
       border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: 12px;
-      padding: 16px;
+      padding: 14px;
       display: flex;
       align-items: center;
       cursor: pointer;
       color: var(--text-color);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+      transition: transform 0.2s;
     }
 
     .menu-card:active {
@@ -65,11 +137,11 @@
     }
 
     .card-icon {
-      font-size: 28px;
-      margin-right: 16px;
+      font-size: 24px;
+      margin-right: 12px;
       background: var(--bg-color);
-      width: 48px;
-      height: 48px;
+      width: 42px;
+      height: 42px;
       border-radius: 10px;
       display: flex;
       align-items: center;
@@ -78,30 +150,62 @@
 
     .card-content h3 {
       margin: 0;
-      font-size: 16px;
+      font-size: 15px;
       color: var(--primary-color);
     }
 
     .card-content p {
-      margin: 4px 0 0 0;
-      font-size: 12px;
+      margin: 2px 0 0 0;
+      font-size: 11px;
       color: var(--hint-color);
     }
 
-    /* ESTILO DO BOTÃO DE VOLTAR NO TELEGRAM */
+    /* 4. FEED DE ATIVIDADES RECENTES */
+    .feed-container {
+      background: var(--secondary-bg);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .feed-item {
+      padding: 8px 0;
+      border-bottom: 1px dashed #ddd;
+      font-size: 12px;
+    }
+
+    .feed-item:last-child {
+      border-bottom: none;
+    }
+
+    .feed-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+
+    .feed-desc {
+      color: var(--hint-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 5. BOTÃO DE VOLTAR */
     .btn-voltar {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       width: 100%;
-      margin-top: 20px;
       padding: 12px;
       background-color: transparent;
       border: 1px solid var(--primary-color);
       color: var(--primary-color);
       border-radius: 10px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: bold;
       cursor: pointer;
     }
@@ -111,94 +215,159 @@
     }
 
     .footer {
-      margin-top: 20px;
+      margin-top: 15px;
       text-align: center;
-      font-size: 11px;
+      font-size: 10px;
       color: var(--hint-color);
     }
-    .top-bar {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.btn-back {
-  background: var(--secondary-bg, #f4f4f5);
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: bold;
-  color: var(--primary-color, #0088cc);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.btn-back:active {
-  transform: scale(0.95);
-}
   </style>
 </head>
 <body>
-  <div class="top-bar">
-    <button class="btn-back" onclick="voltarPagina()">⬅️ Voltar</button>
-  </div>
+
+  <!-- CABEÇALHO -->
   <div class="header">
-    <h1>⚙️ Gestão de Ocorrências</h1>
-    <p>Selecione uma das opções abaixo para prosseguir</p>
+    <div class="top-info">
+      <div class="user-greeting" id="userName">Olá, Usuário! 👋</div>
+      <div class="status-badge">
+        <span class="pulse-dot"></span> Online
+      </div>
+    </div>
+    <p class="subtitle">Central de Gestão e Manutenção</p>
   </div>
 
+  <!-- INDICADORES (KPIs) -->
+  <div class="kpi-container">
+    <div class="kpi-card">
+      <div class="kpi-value" id="kpiAbertos" style="color: #c62828;">-</div>
+      <div class="kpi-label">Abertos</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value" id="kpiAndamento" style="color: #f57f17;">-</div>
+      <div class="kpi-label">Andamento</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value" id="kpiConcluidos" style="color: #2e7d32;">-</div>
+      <div class="kpi-label">Concluídos</div>
+    </div>
+  </div>
+
+  <!-- ACOES PRINCIPAIS -->
+  <div class="section-title">Ações Rápidas</div>
   <div class="menu-grid">
-    <!-- OPÇÃO 1: NOVA OCORRÊNCIA -->
     <div class="menu-card" onclick="navegarPara('newform.html')">
       <div class="card-icon">📝</div>
       <div class="card-content">
         <h3>Nova Ocorrência</h3>
-        <p>Registrar nova manutenção ou pendência</p>
+        <p>Cadastrar manutenção ou pendência</p>
       </div>
     </div>
 
-    <!-- OPÇÃO 2: CONSULTAR OCORRÊNCIAS -->
     <div class="menu-card" onclick="navegarPara('buscar.html')">
       <div class="card-icon">🔎</div>
       <div class="card-content">
         <h3>Consultar / Filtrar</h3>
-        <p>Visualizar, buscar e filtrar registros existentes</p>
+        <p>Buscar registros por filtros ou texto</p>
       </div>
     </div>
   </div>
 
-  <!-- BOTÃO FECHAR / VOLTAR PARA O TELEGRAM -->
+  <!-- FEED RECENTE -->
+  <div class="section-title">Últimos Registros</div>
+  <div class="feed-container" id="feedRecente">
+    <div style="text-align: center; color: #888; font-size: 12px; padding: 8px;">⏳ Carregando resumo...</div>
+  </div>
+
+  <!-- BOTÃO FECHAR -->
   <button class="btn-voltar" onclick="fecharTelegram()">
     ⬅️ Voltar para o Chat
   </button>
 
   <div class="footer">
-    Sistema de Manutenção & Ocorrências
+    Sistema de Gestão de Ocorrências v2.0
   </div>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
+    // 1. Saudação com Nome do Telegram
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      const nome = tg.initDataUnsafe.user.first_name;
+      document.getElementById('userName').innerText = `Olá, ${nome}! 👋`;
+    }
+
     function navegarPara(pagina) {
       window.location.href = pagina;
     }
 
     function fecharTelegram() {
-      tg.close(); // Fecha a janela do WebApp e volta para a conversa
+      tg.close();
     }
-    
-  
-    function voltarPagina() {
-  if (document.referrer.includes('index.html')) {
-    window.history.back();
-  } else {
-    window.location.href = 'index.html'; // Garante que volta para a home
-  }
-}
+
+    // 2. Carregar Indicadores e Registros Recentes via Google Sheets API
+    const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
+    const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
+
+    async function carregarDashboard() {
+      try {
+        const response = await fetch(URL_GVIZ);
+        const text = await response.text();
+        const jsonString = text.substring(47, text.length - 2);
+        const data = JSON.parse(jsonString);
+
+        const rows = data.table.rows;
+        if (!rows || rows.length === 0) return;
+
+        let abertos = 0;
+        let andamento = 0;
+        let concluidos = 0;
+
+        const ocorrencias = rows.map(r => {
+          const c = r.c;
+          const status = c && c[6] ? String(c[6].v) : '';
+          
+          if (status.includes('Aberto')) abertos++;
+          else if (status.includes('Andamento')) andamento++;
+          else if (status.includes('Concluído')) concluidos++;
+
+          return {
+            id: c && c[0] ? c[0].v : '',
+            data: c && c[1] ? c[1].v : '',
+            maquina: c && c[3] ? c[3].v : '',
+            descricao: c && c[5] ? c[5].v : '',
+            status: status
+          };
+        });
+
+        // Atualiza Cards de Indicadores
+        document.getElementById('kpiAbertos').innerText = abertos;
+        document.getElementById('kpiAndamento').innerText = andamento;
+        document.getElementById('kpiConcluidos').innerText = concluidos;
+
+        // Atualiza Feed das 3 Últimas Ocorrências
+        const ultimas = ocorrencias.reverse().slice(0, 3);
+        const feedContainer = document.getElementById('feedRecente');
+        feedContainer.innerHTML = '';
+
+        ultimas.forEach(item => {
+          const itemDiv = document.createElement('div');
+          itemDiv.className = 'feed-item';
+          itemDiv.innerHTML = `
+            <div class="feed-header">
+              <span>#${item.id} - ${item.maquina}</span>
+              <span style="color: var(--primary-color);">${item.status}</span>
+            </div>
+            <div class="feed-desc">${item.descricao}</div>
+          `;
+          feedContainer.appendChild(itemDiv);
+        });
+
+      } catch (error) {
+        console.error('Erro ao carregar dados do dashboard:', error);
+      }
+    }
+
+    carregarDashboard();
   </script>
 </body>
 </html>

@@ -23,7 +23,7 @@
       box-sizing: border-box;
     }
 
-    /* 1. CABEÇALHO E STATUS ONLINE */
+    /* 1. CABEÇALHO */
     .header {
       margin-bottom: 20px;
     }
@@ -74,7 +74,7 @@
       color: var(--hint-color);
     }
 
-    /* 2. DASHBOARD DE RESUMO (KPIs) */
+    /* 2. DASHBOARD DE RESUMO (KPIs) COM INTERAÇÃO DE CLIQUE */
     .kpi-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -88,6 +88,13 @@
       padding: 10px 6px;
       text-align: center;
       border: 1px solid rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .kpi-card:active {
+      transform: scale(0.95);
+      background-color: #e4e4e7;
     }
 
     .kpi-value {
@@ -103,7 +110,7 @@
       font-weight: 600;
     }
 
-    /* 3. MENU PRINCIPAL & ATALHOS RÁPIDOS */
+    /* 3. MENU PRINCIPAL */
     .section-title {
       font-size: 12px;
       font-weight: bold;
@@ -160,13 +167,24 @@
       color: var(--hint-color);
     }
 
-    /* 4. FEED DE ATIVIDADES RECENTES */
+    /* 4. FEED RECENTE COM BARRA DE ROLAGEM */
     .feed-container {
       background: var(--secondary-bg);
       border-radius: 12px;
       padding: 12px;
       margin-bottom: 20px;
       border: 1px solid rgba(0, 0, 0, 0.05);
+      max-height: 180px; /* Limita a altura */
+      overflow-y: auto;   /* Habilita a barra de rolagem */
+    }
+
+    /* Estilização da barra de rolagem */
+    .feed-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    .feed-container::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
     }
 
     .feed-item {
@@ -227,7 +245,7 @@
   <!-- CABEÇALHO -->
   <div class="header">
     <div class="top-info">
-      <div class="user-greeting" id="userName">Olá, Usuário! 👋</div>
+      <div class="user-greeting" id="userName">Olá! 👋</div>
       <div class="status-badge">
         <span class="pulse-dot"></span> Online
       </div>
@@ -235,23 +253,23 @@
     <p class="subtitle">Central de Gestão e Manutenção</p>
   </div>
 
-  <!-- INDICADORES (KPIs) -->
+  <!-- INDICADORES CLICÁVEIS -->
   <div class="kpi-container">
-    <div class="kpi-card">
+    <div class="kpi-card" onclick="filtrarPorStatus('Aberto')">
       <div class="kpi-value" id="kpiAbertos" style="color: #c62828;">-</div>
-      <div class="kpi-label">Abertos</div>
+      <div class="kpi-label">Abertos 🔴</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" onclick="filtrarPorStatus('Andamento')">
       <div class="kpi-value" id="kpiAndamento" style="color: #f57f17;">-</div>
-      <div class="kpi-label">Andamento</div>
+      <div class="kpi-label">Andamento 🟡</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" onclick="filtrarPorStatus('Concluído')">
       <div class="kpi-value" id="kpiConcluidos" style="color: #2e7d32;">-</div>
-      <div class="kpi-label">Concluídos</div>
+      <div class="kpi-label">Concluídos 🟢</div>
     </div>
   </div>
 
-  <!-- ACOES PRINCIPAIS -->
+  <!-- AÇÕES PRINCIPAIS -->
   <div class="section-title">Ações Rápidas</div>
   <div class="menu-grid">
     <div class="menu-card" onclick="navegarPara('newform.html')">
@@ -271,8 +289,8 @@
     </div>
   </div>
 
-  <!-- FEED RECENTE -->
-  <div class="section-title">Últimos Registros</div>
+  <!-- FEED RECENTE COM ROLAGEM -->
+  <div class="section-title">Últimos Lançamentos</div>
   <div class="feed-container" id="feedRecente">
     <div style="text-align: center; color: #888; font-size: 12px; padding: 8px;">⏳ Carregando resumo...</div>
   </div>
@@ -289,12 +307,18 @@
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
+    tg.ready(); // Garante o carregamento dos dados do usuário
 
-    // 1. Saudação com Nome do Telegram
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-      const nome = tg.initDataUnsafe.user.first_name;
-      document.getElementById('userName').innerText = `Olá, ${nome}! 👋`;
+    // 1. Captura nome do usuário do Telegram de forma mais robusta
+    function carregarUsuario() {
+      const user = tg.initDataUnsafe?.user;
+      if (user && user.first_name) {
+        document.getElementById('userName').innerText = `Olá, ${user.first_name}! 👋`;
+      } else {
+        document.getElementById('userName').innerText = `Olá, Técnico! 👋`;
+      }
     }
+    carregarUsuario();
 
     function navegarPara(pagina) {
       window.location.href = pagina;
@@ -304,7 +328,12 @@
       tg.close();
     }
 
-    // 2. Carregar Indicadores e Registros Recentes via Google Sheets API
+    // 2. Redireciona para a busca aplicando o filtro clicado
+    function filtrarPorStatus(status) {
+      window.location.href = `buscar.html?status=${status}`;
+    }
+
+    // 3. Carregar Dados da Planilha
     const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
     const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
 
@@ -339,13 +368,13 @@
           };
         });
 
-        // Atualiza Cards de Indicadores
+        // Atualiza os contadores
         document.getElementById('kpiAbertos').innerText = abertos;
         document.getElementById('kpiAndamento').innerText = andamento;
         document.getElementById('kpiConcluidos').innerText = concluidos;
 
-        // Atualiza Feed das 3 Últimas Ocorrências
-        const ultimas = ocorrencias.reverse().slice(0, 3);
+        // Exibe os últimos 10 lançamentos na área com rolagem
+        const ultimas = ocorrencias.reverse().slice(0, 10);
         const feedContainer = document.getElementById('feedRecente');
         feedContainer.innerHTML = '';
 

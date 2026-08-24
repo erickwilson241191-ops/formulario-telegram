@@ -32,6 +32,7 @@
       background: var(--bg-color);
       padding-top: 5px;
       padding-bottom: 5px;
+      z-index: 10;
     }
     input[type="text"] {
       width: 100%;
@@ -43,6 +44,8 @@
       background-color: var(--secondary-bg);
       color: var(--text-color);
     }
+    
+    /* CARD CLICÁVEL */
     .card {
       background: var(--secondary-bg);
       border-left: 5px solid var(--primary-color);
@@ -50,36 +53,82 @@
       padding: 12px;
       margin-bottom: 12px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+    .card:active {
+      transform: scale(0.98);
     }
     .card-header {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       font-weight: bold;
       font-size: 14px;
-      margin-bottom: 6px;
     }
     .card-id { color: var(--primary-color); }
-    .card-body { font-size: 13px; line-height: 1.4; }
-    .card-body div { margin-bottom: 4px; }
+    
+    /* RESUMO RESUMIDO (SEMPRE VISÍVEL) */
+    .card-preview {
+      font-size: 13px;
+      margin-top: 6px;
+      color: #555;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* DETALHES EXPANSÍVEIS */
+    .card-details {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #ccc;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .card.expanded .card-details {
+      display: block;
+    }
+    .card.expanded .card-preview {
+      display: none;
+    }
+    
+    .detail-item {
+      margin-bottom: 6px;
+    }
     .badge {
       display: inline-block;
       padding: 2px 6px;
       border-radius: 4px;
       font-size: 11px;
       font-weight: bold;
-      background: #e0e0e0;
     }
     .status-aberto { background: #ffebee; color: #c62828; }
     .status-andamento { background: #fffde7; color: #f57f17; }
     .status-concluido { background: #e8f5e9; color: #2e7d32; }
     .status-cancelado { background: #eee; color: #616161; }
-    .midia-link {
-      display: inline-block;
-      margin-top: 6px;
-      color: var(--primary-color);
+    
+    .midia-btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      background-color: var(--primary-color);
+      color: #fff;
+      padding: 8px 0;
+      border-radius: 6px;
       text-decoration: none;
       font-weight: bold;
+      margin-top: 10px;
+      box-sizing: border-box;
     }
+    .click-hint {
+      font-size: 11px;
+      color: #888;
+      text-align: right;
+      margin-top: 4px;
+    }
+
     #status-msg {
       text-align: center;
       padding: 20px;
@@ -112,10 +161,7 @@
       const statusDiv = document.getElementById('status-msg');
       try {
         const response = await fetch(URL_GVIZ);
-        
-        if (!response.ok) {
-          throw new Error('A planilha está privada ou o ID está incorreto.');
-        }
+        if (!response.ok) throw new Error('Acesso à planilha negado.');
 
         const text = await response.text();
         const jsonString = text.substring(47, text.length - 2);
@@ -123,7 +169,7 @@
 
         const rows = data.table.rows;
         if (!rows || rows.length === 0) {
-          statusDiv.innerText = 'ℹ️ Nenhuma ocorrência cadastrada na planilha.';
+          statusDiv.innerText = 'ℹ️ Nenhuma ocorrência cadastrada.';
           return;
         }
 
@@ -145,7 +191,7 @@
         renderizarLista(todasOcorrencias);
       } catch (error) {
         console.error('Erro:', error);
-        statusDiv.innerHTML = `<span style="color:red;">❌ Erro ao carregar.<br>Certifique-se de que a planilha está pública em "Qualquer pessoa com o link".</span>`;
+        statusDiv.innerHTML = `<span style="color:red;">❌ Erro ao carregar dados.<br>Verifique a conexão ou a permissão da planilha.</span>`;
       }
     }
 
@@ -161,6 +207,7 @@
       lista.forEach(item => {
         const card = document.createElement('div');
         card.className = 'card';
+        card.onclick = () => card.classList.toggle('expanded');
 
         let statusClass = 'status-aberto';
         const st = String(item.status);
@@ -168,9 +215,9 @@
         if (st.includes('Concluído')) statusClass = 'status-concluido';
         if (st.includes('Cancelado')) statusClass = 'status-cancelado';
 
-        let linkMidia = '';
+        let btnMidia = '';
         if (item.midia && String(item.midia).startsWith('http')) {
-          linkMidia = `<a href="${item.midia}" target="_blank" class="midia-link">🖼️ Ver Mídia Anexada</a>`;
+          btnMidia = `<a href="${item.midia}" target="_blank" class="midia-btn" onclick="event.stopPropagation();">🖼️ Abrir Mídia Anexada</a>`;
         }
 
         card.innerHTML = `
@@ -178,11 +225,18 @@
             <span class="card-id">#${item.id} - ${item.maquina}</span>
             <span class="badge ${statusClass}">${item.status}</span>
           </div>
-          <div class="card-body">
-            <div><strong>🏷️ Categoria:</strong> ${item.categoria}</div>
-            <div><strong>📝 Descrição:</strong> ${item.descricao}</div>
-            <div><strong>👨‍🔧 Técnico:</strong> ${item.tecnico} | <strong>📅 Data:</strong> ${item.data}</div>
-            ${linkMidia}
+          
+          <!-- RESUMO RÁPIDO (Visível por padrão) -->
+          <div class="card-preview">📝 ${item.descricao}</div>
+          <div class="click-hint">👇 Toque para ver detalhes</div>
+
+          <!-- DETALHES COMPLETOS (Aparece ao clicar) -->
+          <div class="card-details">
+            <div class="detail-item"><strong>🏷️ Categoria:</strong> ${item.categoria}</div>
+            <div class="detail-item"><strong>📝 Descrição Completa:</strong><br>${item.descricao}</div>
+            <div class="detail-item"><strong>👨‍🔧 Técnico Responsável:</strong> ${item.tecnico}</div>
+            <div class="detail-item"><strong>📅 Data/Hora de Registro:</strong> ${item.data}</div>
+            ${btnMidia}
           </div>
         `;
         container.appendChild(card);

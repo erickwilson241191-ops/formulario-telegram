@@ -20,7 +20,6 @@
       padding: 12px;
       box-sizing: border-box;
     }
-    /* NAVEGAÇÃO POR ABAS */
     .tabs {
       display: flex;
       margin-bottom: 16px;
@@ -44,7 +43,6 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* BOTÕES SELETORES (CATEGORIA E STATUS) */
     .grid-selector {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -197,7 +195,6 @@
       if (type === 'status') selectedStatus = value;
     }
 
-    // SUBMIT DO FORMULÁRIO (CORRIGIDO)
     document.getElementById('ocorrenciaForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
@@ -210,7 +207,6 @@
         enviarGrupo: document.getElementById('enviarGrupo').checked
       };
 
-      // Envia os dados e fecha a janela imediatamente
       tg.sendData(JSON.stringify(payload));
       tg.close();
     });

@@ -25,18 +25,19 @@
       color: var(--primary-color);
       font-size: 18px;
     }
-    .search-box {
-      margin-bottom: 15px;
+    .search-container {
       position: sticky;
       top: 0;
       background: var(--bg-color);
       padding-top: 5px;
-      padding-bottom: 5px;
+      padding-bottom: 8px;
       z-index: 10;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 12px;
     }
     input[type="text"] {
       width: 100%;
-      padding: 12px;
+      padding: 10px 12px;
       border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 14px;
@@ -45,6 +46,44 @@
       color: var(--text-color);
     }
     
+    /* BOTÕES DE FILTRO (CHIPS) */
+    .filter-group {
+      margin-top: 8px;
+    }
+    .filter-label {
+      font-size: 11px;
+      font-weight: bold;
+      color: #777;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+    .filter-chips {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .filter-chips::-webkit-scrollbar {
+      display: none;
+    }
+    .chip {
+      background: var(--secondary-bg);
+      border: 1px solid #ddd;
+      border-radius: 16px;
+      padding: 5px 12px;
+      font-size: 12px;
+      white-space: nowrap;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .chip.active {
+      background-color: var(--primary-color);
+      color: #fff;
+      border-color: var(--primary-color);
+    }
+
     /* CARD EXPANSÍVEL */
     .card {
       background: var(--secondary-bg);
@@ -68,7 +107,6 @@
     }
     .card-id { color: var(--primary-color); }
     
-    /* DATA E RESUMO SEMPRE VISÍVEIS */
     .card-meta {
       font-size: 12px;
       color: #666;
@@ -84,7 +122,6 @@
       text-overflow: ellipsis;
     }
 
-    /* DETALHES EXPANSÍVEIS */
     .card-details {
       display: none;
       margin-top: 10px;
@@ -100,9 +137,7 @@
       display: none;
     }
     
-    .detail-item {
-      margin-bottom: 6px;
-    }
+    .detail-item { margin-bottom: 6px; }
     .badge {
       display: inline-block;
       padding: 2px 6px;
@@ -147,11 +182,34 @@
 
   <h2>🔎 Consultar Ocorrências</h2>
 
-  <div class="search-box">
-    <input type="text" id="searchInput" onkeyup="filtrarOcorrencias()" placeholder="Filtrar por máquina, ID, status ou palavra-chave...">
+  <div class="search-container">
+    <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Digitar palavra-chave...">
+
+    <!-- FILTRO POR STATUS -->
+    <div class="filter-group">
+      <div class="filter-label">Status:</div>
+      <div class="filter-chips">
+        <div class="chip active" onclick="selecionarFiltro('status', 'TODOS', this)">Todos</div>
+        <div class="chip" onclick="selecionarFiltro('status', 'Aberto', this)">🔴 Aberto</div>
+        <div class="chip" onclick="selecionarFiltro('status', 'Andamento', this)">🟡 Em Andamento</div>
+        <div class="chip" onclick="selecionarFiltro('status', 'Concluído', this)">🟢 Concluído</div>
+      </div>
+    </div>
+
+    <!-- FILTRO POR CATEGORIA -->
+    <div class="filter-group">
+      <div class="filter-label">Categoria:</div>
+      <div class="filter-chips">
+        <div class="chip active" onclick="selecionarFiltro('categoria', 'TODOS', this)">Todas</div>
+        <div class="chip" onclick="selecionarFiltro('categoria', 'Corretiva', this)">🛠️ Corretiva</div>
+        <div class="chip" onclick="selecionarFiltro('categoria', 'Preventiva', this)">📅 Preventiva</div>
+        <div class="chip" onclick="selecionarFiltro('categoria', 'Melhoria', this)">💡 Melhoria</div>
+        <div class="chip" onclick="selecionarFiltro('categoria', 'Pendência', this)">⏳ Pendência</div>
+      </div>
+    </div>
   </div>
 
-  <div id="status-msg">⏳ Carregando ocorrências da mais recente à mais antiga...</div>
+  <div id="status-msg">⏳ Carregando ocorrências da planilha...</div>
   <div id="listaOcorrencias"></div>
 
   <script>
@@ -159,12 +217,24 @@
     tg.expand();
 
     const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
-    
-    // Consulta ordenando pela Coluna B (Data) do mais recente para o mais antigo (ORDER BY B DESC)
-    const queryGviz = encodeURIComponent("SELECT * ORDER BY B DESC");
-    const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tq=${queryGviz}&tqx=out:json`;
+    const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
 
     let todasOcorrencias = [];
+    let filtroStatusAtivo = 'TODOS';
+    let filtroCategoriaAtivo = 'TODOS';
+
+    // Função para converter "DD/MM/AAAA HH:MM" em um objeto Date para ordenação correta
+    function parseDataHora(stringDataHora) {
+      if (!stringDataHora) return new Date(0);
+      try {
+        const [data, hora] = stringDataHora.split(' ');
+        const [dia, mes, ano] = data.split('/');
+        const [horas, minutos] = hora ? hora.split(':') : [0, 0];
+        return new Date(ano, mes - 1, dia, horas, minutos);
+      } catch (e) {
+        return new Date(0);
+      }
+    }
 
     async function carregarOcorrencias() {
       const statusDiv = document.getElementById('status-msg');
@@ -196,15 +266,57 @@
           };
         });
 
-        // Ordenação extra no JavaScript para garantir ordem por ID/ordem de inserção inversa
-        todasOcorrencias.sort((a, b) => Number(b.id) - Number(a.id));
+        // ORDENAÇÃO: Converte a string da data/hora e ordena do mais recente ao mais antigo
+        todasOcorrencias.sort((a, b) => {
+          const dataA = parseDataHora(a.data);
+          const dataB = parseDataHora(b.data);
+          return dataB - dataA; // Decrescente (Mais recente primeiro)
+        });
 
         statusDiv.style.display = 'none';
-        renderizarLista(todasOcorrencias);
+        aplicarFiltros();
       } catch (error) {
         console.error('Erro:', error);
         statusDiv.innerHTML = `<span style="color:red;">❌ Erro ao carregar dados.<br>Verifique a conexão ou a permissão da planilha.</span>`;
       }
+    }
+
+    function selecionarFiltro(tipo, valor, elemento) {
+      const grupo = elemento.parentElement;
+      grupo.querySelectorAll('.chip').forEach(chip => chip.classList.remove('active'));
+      elemento.classList.add('active');
+
+      if (tipo === 'status') filtroStatusAtivo = valor;
+      if (tipo === 'categoria') filtroCategoriaAtivo = valor;
+
+      aplicarFiltros();
+    }
+
+    function aplicarFiltros() {
+      const termo = document.getElementById('searchInput').value.toLowerCase();
+
+      const filtradas = todasOcorrencias.filter(item => {
+        // Filtro por Texto
+        const bateuTexto = (
+          String(item.id).toLowerCase().includes(termo) ||
+          String(item.maquina).toLowerCase().includes(termo) ||
+          String(item.descricao).toLowerCase().includes(termo) ||
+          String(item.tecnico).toLowerCase().includes(termo) ||
+          String(item.data).toLowerCase().includes(termo)
+        );
+
+        // Filtro por Status
+        const bateuStatus = (filtroStatusAtivo === 'TODOS') || 
+          String(item.status).toLowerCase().includes(filtroStatusAtivo.toLowerCase());
+
+        // Filtro por Categoria
+        const bateuCategoria = (filtroCategoriaAtivo === 'TODOS') || 
+          String(item.categoria).toLowerCase().includes(filtroCategoriaAtivo.toLowerCase());
+
+        return bateuTexto && bateuStatus && bateuCategoria;
+      });
+
+      renderizarLista(filtradas);
     }
 
     function renderizarLista(lista) {
@@ -212,7 +324,7 @@
       container.innerHTML = '';
 
       if (lista.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#777;">Nenhum resultado encontrado.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#777; margin-top:20px;">Nenhuma ocorrência encontrada para esses filtros.</p>';
         return;
       }
 
@@ -238,40 +350,21 @@
             <span class="badge ${statusClass}">${item.status}</span>
           </div>
           
-          <!-- DATA DA OCORRÊNCIA EM DESTAQUE -->
-          <div class="card-meta">📅 Registrado em: ${item.data}</div>
+          <div class="card-meta">📅 ${item.data}</div>
 
-          <!-- RESUMO RÁPIDO (Visível por padrão) -->
           <div class="card-preview">📝 ${item.descricao}</div>
           <div class="click-hint">👇 Toque para ver detalhes</div>
 
-          <!-- DETALHES COMPLETOS (Aparece ao clicar) -->
           <div class="card-details">
             <div class="detail-item"><strong>🏷️ Categoria:</strong> ${item.categoria}</div>
             <div class="detail-item"><strong>📝 Descrição Completa:</strong><br>${item.descricao}</div>
             <div class="detail-item"><strong>👨‍🔧 Técnico Responsável:</strong> ${item.tecnico}</div>
-            <div class="detail-item"><strong>📅 Data/Hora de Registro:</strong> ${item.data}</div>
+            <div class="detail-item"><strong>📅 Data/Hora:</strong> ${item.data}</div>
             ${btnMidia}
           </div>
         `;
         container.appendChild(card);
       });
-    }
-
-    function filtrarOcorrencias() {
-      const termo = document.getElementById('searchInput').value.toLowerCase();
-      const filtradas = todasOcorrencias.filter(item => {
-        return (
-          String(item.id).toLowerCase().includes(termo) ||
-          String(item.maquina).toLowerCase().includes(termo) ||
-          String(item.categoria).toLowerCase().includes(termo) ||
-          String(item.descricao).toLowerCase().includes(termo) ||
-          String(item.status).toLowerCase().includes(termo) ||
-          String(item.tecnico).toLowerCase().includes(termo) ||
-          String(item.data).toLowerCase().includes(termo)
-        );
-      });
-      renderizarLista(filtradas);
     }
 
     carregarOcorrencias();

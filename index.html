@@ -7,11 +7,12 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --primary-color: #0088cc;
+      --primary-color: #006699; /* Azul mais escuro para maior contraste */
       --bg-color: var(--tg-theme-bg-color, #ffffff);
-      --text-color: var(--tg-theme-text-color, #222222);
-      --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5);
-      --hint-color: var(--tg-theme-hint-color, #888888);
+      --text-color: #111111; /* Texto quase preto para leitura facilitada */
+      --secondary-bg: #eef2f5; /* Fundo dos cards com tom de contraste */
+      --hint-color: #444444; /* Cinza bem escuro para leituras secundárias */
+      --font-scale: 1; /* Escala de fonte dinâmica */
     }
 
     body {
@@ -21,9 +22,33 @@
       margin: 0;
       padding: 16px;
       box-sizing: border-box;
+      font-size: calc(16px * var(--font-scale)); /* Tamanho base maior */
     }
 
-    /* 1. CABEÇALHO */
+    /* BARRA DE ACCESSIBILIDADE DE FONTE */
+    .accessibility-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #000;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .font-btn {
+      background: #ffffff;
+      border: none;
+      color: #000;
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    /* CABEÇALHO */
     .header {
       margin-bottom: 20px;
     }
@@ -32,12 +57,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .user-greeting {
-      font-size: 18px;
-      font-weight: bold;
+      font-size: calc(22px * var(--font-scale));
+      font-weight: 800;
       color: var(--primary-color);
     }
 
@@ -45,152 +70,137 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 11px;
-      background: rgba(46, 125, 50, 0.1);
-      color: #2e7d32;
-      padding: 4px 8px;
-      border-radius: 12px;
+      font-size: calc(13px * var(--font-scale));
+      background: #d4edda;
+      color: #155724;
+      padding: 6px 10px;
+      border-radius: 16px;
       font-weight: bold;
+      border: 1px solid #c3e6cb;
     }
 
     .pulse-dot {
-      width: 8px;
-      height: 8px;
-      background-color: #2e7d32;
+      width: 10px;
+      height: 10px;
+      background-color: #28a745;
       border-radius: 50%;
-      box-shadow: 0 0 0 rgba(46, 125, 50, 0.4);
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7); }
-      70% { box-shadow: 0 0 0 6px rgba(46, 125, 50, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
     }
 
     .subtitle {
       margin: 0;
-      font-size: 13px;
+      font-size: calc(15px * var(--font-scale));
       color: var(--hint-color);
+      font-weight: 600;
     }
 
-    /* 2. DASHBOARD DE RESUMO (KPIs) COM INTERAÇÃO DE CLIQUE */
+    /* INDICADORES (KPIs) - ALTAMENTE VISÍVEIS */
     .kpi-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 20px;
+      gap: 10px;
+      margin-bottom: 24px;
     }
 
     .kpi-card {
       background: var(--secondary-bg);
-      border-radius: 10px;
-      padding: 10px 6px;
+      border-radius: 12px;
+      padding: 14px 6px;
       text-align: center;
-      border: 1px solid rgba(0, 0, 0, 0.05);
+      border: 2px solid #ccc;
       cursor: pointer;
-      transition: transform 0.2s, background-color 0.2s;
     }
 
     .kpi-card:active {
-      transform: scale(0.95);
-      background-color: #e4e4e7;
+      background-color: #d1d5db;
     }
 
     .kpi-value {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 2px;
+      font-size: calc(26px * var(--font-scale));
+      font-weight: 900;
+      margin-bottom: 4px;
     }
 
     .kpi-label {
-      font-size: 10px;
-      color: var(--hint-color);
+      font-size: calc(13px * var(--font-scale));
+      color: #000;
       text-transform: uppercase;
-      font-weight: 600;
+      font-weight: 800;
     }
 
-    /* 3. MENU PRINCIPAL */
+    /* MENUS DE AÇÃO */
     .section-title {
-      font-size: 12px;
-      font-weight: bold;
-      color: var(--hint-color);
+      font-size: calc(15px * var(--font-scale));
+      font-weight: 800;
+      color: #000;
       text-transform: uppercase;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 4px;
     }
 
     .menu-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 10px;
-      margin-bottom: 20px;
+      gap: 12px;
+      margin-bottom: 24px;
     }
 
     .menu-card {
       background: var(--secondary-bg);
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      border-radius: 12px;
-      padding: 14px;
+      border: 2px solid var(--primary-color);
+      border-radius: 14px;
+      padding: 16px;
       display: flex;
       align-items: center;
       cursor: pointer;
-      color: var(--text-color);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-      transition: transform 0.2s;
     }
 
     .menu-card:active {
-      transform: scale(0.98);
+      transform: scale(0.97);
     }
 
     .card-icon {
-      font-size: 24px;
-      margin-right: 12px;
-      background: var(--bg-color);
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
+      font-size: calc(30px * var(--font-scale));
+      margin-right: 16px;
+      background: #fff;
+      width: 54px;
+      height: 54px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
+      border: 1px solid #bbb;
     }
 
     .card-content h3 {
       margin: 0;
-      font-size: 15px;
+      font-size: calc(18px * var(--font-scale));
       color: var(--primary-color);
+      font-weight: bold;
     }
 
     .card-content p {
-      margin: 2px 0 0 0;
-      font-size: 11px;
+      margin: 4px 0 0 0;
+      font-size: calc(13px * var(--font-scale));
       color: var(--hint-color);
+      font-weight: 600;
     }
 
-    /* 4. FEED RECENTE COM BARRA DE ROLAGEM */
+    /* FEED DE ÚLTIMOS LANÇAMENTOS */
     .feed-container {
       background: var(--secondary-bg);
       border-radius: 12px;
       padding: 12px;
-      margin-bottom: 20px;
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      max-height: 180px; /* Limita a altura */
-      overflow-y: auto;   /* Habilita a barra de rolagem */
-    }
-
-    /* Estilização da barra de rolagem */
-    .feed-container::-webkit-scrollbar {
-      width: 4px;
-    }
-    .feed-container::-webkit-scrollbar-thumb {
-      background: #ccc;
-      border-radius: 4px;
+      margin-bottom: 24px;
+      border: 2px solid #ccc;
+      max-height: 220px;
+      overflow-y: auto;
     }
 
     .feed-item {
-      padding: 8px 0;
-      border-bottom: 1px dashed #ddd;
-      font-size: 12px;
+      padding: 10px 0;
+      border-bottom: 2px dashed #bbb;
+      font-size: calc(14px * var(--font-scale));
     }
 
     .feed-item:last-child {
@@ -200,47 +210,46 @@
     .feed-header {
       display: flex;
       justify-content: space-between;
-      font-weight: bold;
-      margin-bottom: 2px;
+      font-weight: 900;
+      margin-bottom: 4px;
     }
 
     .feed-desc {
-      color: var(--hint-color);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      color: #333;
+      font-weight: 500;
     }
 
-    /* 5. BOTÃO DE VOLTAR */
+    /* BOTÃO VOLTAR / FECHAR */
     .btn-voltar {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
       width: 100%;
-      padding: 12px;
-      background-color: transparent;
-      border: 1px solid var(--primary-color);
-      color: var(--primary-color);
-      border-radius: 10px;
-      font-size: 13px;
+      padding: 16px;
+      background-color: #000;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: calc(16px * var(--font-scale));
       font-weight: bold;
       cursor: pointer;
     }
 
     .btn-voltar:active {
-      background-color: var(--secondary-bg);
-    }
-
-    .footer {
-      margin-top: 15px;
-      text-align: center;
-      font-size: 10px;
-      color: var(--hint-color);
+      background-color: #333;
     }
   </style>
 </head>
 <body>
+
+  <!-- CONTROLE DE ACESSIBILIDADE DE FONTE -->
+  <div class="accessibility-bar">
+    <span>Tamanho do Texto:</span>
+    <div>
+      <button class="font-btn" onclick="alterarFonte(-0.1)">A-</button>
+      <button class="font-btn" onclick="alterarFonte(0.1)">A+</button>
+    </div>
+  </div>
 
   <!-- CABEÇALHO -->
   <div class="header">
@@ -256,27 +265,27 @@
   <!-- INDICADORES CLICÁVEIS -->
   <div class="kpi-container">
     <div class="kpi-card" onclick="filtrarPorStatus('Aberto')">
-      <div class="kpi-value" id="kpiAbertos" style="color: #c62828;">-</div>
+      <div class="kpi-value" id="kpiAbertos" style="color: #b71c1c;">-</div>
       <div class="kpi-label">Abertos 🔴</div>
     </div>
     <div class="kpi-card" onclick="filtrarPorStatus('Andamento')">
-      <div class="kpi-value" id="kpiAndamento" style="color: #f57f17;">-</div>
+      <div class="kpi-value" id="kpiAndamento" style="color: #e65100;">-</div>
       <div class="kpi-label">Andamento 🟡</div>
     </div>
     <div class="kpi-card" onclick="filtrarPorStatus('Concluído')">
-      <div class="kpi-value" id="kpiConcluidos" style="color: #2e7d32;">-</div>
+      <div class="kpi-value" id="kpiConcluidos" style="color: #1b5e20;">-</div>
       <div class="kpi-label">Concluídos 🟢</div>
     </div>
   </div>
 
   <!-- AÇÕES PRINCIPAIS -->
-  <div class="section-title">Ações Rápidas</div>
+  <div class="section-title">Ações Principais</div>
   <div class="menu-grid">
     <div class="menu-card" onclick="navegarPara('newform.html')">
       <div class="card-icon">📝</div>
       <div class="card-content">
         <h3>Nova Ocorrência</h3>
-        <p>Cadastrar manutenção ou pendência</p>
+        <p>Cadastrar nova manutenção</p>
       </div>
     </div>
 
@@ -284,32 +293,37 @@
       <div class="card-icon">🔎</div>
       <div class="card-content">
         <h3>Consultar / Filtrar</h3>
-        <p>Buscar registros por filtros ou texto</p>
+        <p>Buscar ocorrencias cadastradas</p>
       </div>
     </div>
   </div>
 
-  <!-- FEED RECENTE COM ROLAGEM -->
+  <!-- FEED RECENTE -->
   <div class="section-title">Últimos Lançamentos</div>
   <div class="feed-container" id="feedRecente">
-    <div style="text-align: center; color: #888; font-size: 12px; padding: 8px;">⏳ Carregando resumo...</div>
+    <div style="text-align: center; color: #333; font-size: 14px; font-weight: bold; padding: 12px;">⏳ Carregando registros...</div>
   </div>
 
   <!-- BOTÃO FECHAR -->
   <button class="btn-voltar" onclick="fecharTelegram()">
-    ⬅️ Voltar para o Chat
+    ⬅️ Voltar para o Chat do Telegram
   </button>
-
-  <div class="footer">
-    Sistema de Gestão de Ocorrências v2.0
-  </div>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-    tg.ready(); // Garante o carregamento dos dados do usuário
+    tg.ready();
 
-    // 1. Captura nome do usuário do Telegram de forma mais robusta
+    // Controle de fonte
+    let fontScale = parseFloat(localStorage.getItem('userFontScale')) || 1.1; // Inicia em 1.1 (10% maior)
+    document.documentElement.style.setProperty('--font-scale', fontScale);
+
+    function alterarFonte(delta) {
+      fontScale = Math.min(Math.max(fontScale + delta, 0.9), 1.5);
+      document.documentElement.style.setProperty('--font-scale', fontScale);
+      localStorage.setItem('userFontScale', fontScale);
+    }
+
     function carregarUsuario() {
       const user = tg.initDataUnsafe?.user;
       if (user && user.first_name) {
@@ -320,20 +334,10 @@
     }
     carregarUsuario();
 
-    function navegarPara(pagina) {
-      window.location.href = pagina;
-    }
+    function navegarPara(pagina) { window.location.href = pagina; }
+    function fecharTelegram() { tg.close(); }
+    function filtrarPorStatus(status) { window.location.href = `buscar.html?status=${status}`; }
 
-    function fecharTelegram() {
-      tg.close();
-    }
-
-    // 2. Redireciona para a busca aplicando o filtro clicado
-    function filtrarPorStatus(status) {
-      window.location.href = `buscar.html?status=${status}`;
-    }
-
-    // 3. Carregar Dados da Planilha
     const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
     const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
 
@@ -347,9 +351,7 @@
         const rows = data.table.rows;
         if (!rows || rows.length === 0) return;
 
-        let abertos = 0;
-        let andamento = 0;
-        let concluidos = 0;
+        let abertos = 0, andamento = 0, concluidos = 0;
 
         const ocorrencias = rows.map(r => {
           const c = r.c;
@@ -361,19 +363,16 @@
 
           return {
             id: c && c[0] ? c[0].v : '',
-            data: c && c[1] ? c[1].v : '',
             maquina: c && c[3] ? c[3].v : '',
             descricao: c && c[5] ? c[5].v : '',
             status: status
           };
         });
 
-        // Atualiza os contadores
         document.getElementById('kpiAbertos').innerText = abertos;
         document.getElementById('kpiAndamento').innerText = andamento;
         document.getElementById('kpiConcluidos').innerText = concluidos;
 
-        // Exibe os últimos 10 lançamentos na área com rolagem
         const ultimas = ocorrencias.reverse().slice(0, 10);
         const feedContainer = document.getElementById('feedRecente');
         feedContainer.innerHTML = '';
@@ -392,7 +391,7 @@
         });
 
       } catch (error) {
-        console.error('Erro ao carregar dados do dashboard:', error);
+        console.error('Erro ao carregar dados:', error);
       }
     }
 

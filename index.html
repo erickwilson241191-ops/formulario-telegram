@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Central de Ocorrências</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --primary-color: #0088cc;
+      --bg-color: var(--tg-theme-bg-color, #ffffff);
+      --text-color: var(--tg-theme-text-color, #222222);
+      --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5);
+      --hint-color: var(--tg-theme-hint-color, #888888);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding-top: 10px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--primary-color);
+    }
+
+    .header p {
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--hint-color);
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .menu-card {
+      background: var(--secondary-bg);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: var(--text-color);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .menu-card:active {
+      transform: scale(0.98);
+    }
+
+    .card-icon {
+      font-size: 28px;
+      margin-right: 16px;
+      background: var(--bg-color);
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-content h3 {
+      margin: 0;
+      font-size: 16px;
+      color: var(--primary-color);
+    }
+
+    .card-content p {
+      margin: 4px 0 0 0;
+      font-size: 12px;
+      color: var(--hint-color);
+    }
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--hint-color);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>⚙️ Gestão de Ocorrências</h1>
+    <p>Selecione uma das opções abaixo para prosseguir</p>
+  </div>
+
+  <div class="menu-grid">
+    <!-- OPÇÃO 1: NOVA OCORRÊNCIA -->
+    <a href="index.html" class="menu-card" id="btn-cadastrar">
+      <div class="card-icon">📝</div>
+      <div class="card-content">
+        <h3>Nova Ocorrência</h3>
+        <p>Registrar nova manutenção ou pendência</p>
+      </div>
+    </a>
+
+    <!-- OPÇÃO 2: CONSULTAR OCORRÊNCIAS -->
+    <a href="buscar.html" class="menu-card">
+      <div class="card-icon">🔎</div>
+      <div class="card-content">
+        <h3>Consultar / Filtrar</h3>
+        <p>Visualizar, buscar e filtrar registros existentes</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="footer">
+    Sistema de Manutenção & Ocorrências
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+  </script>
+</body>
+</html>

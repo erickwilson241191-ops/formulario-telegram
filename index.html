@@ -54,7 +54,7 @@
       padding: 16px;
       display: flex;
       align-items: center;
-      text-decoration: none;
+      cursor: pointer;
       color: var(--text-color);
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
       transition: transform 0.2s, box-shadow 0.2s;
@@ -105,22 +105,22 @@
 
   <div class="menu-grid">
     <!-- OPÇÃO 1: NOVA OCORRÊNCIA -->
-    <a href="newform.html" class="menu-card" id="btn-cadastrar">
+    <div class="menu-card" onclick="navegarPara('newform.html')">
       <div class="card-icon">📝</div>
       <div class="card-content">
         <h3>Nova Ocorrência</h3>
         <p>Registrar nova manutenção ou pendência</p>
       </div>
-    </a>
+    </div>
 
     <!-- OPÇÃO 2: CONSULTAR OCORRÊNCIAS -->
-    <a href="buscar.html" class="menu-card">
+    <div class="menu-card" onclick="navegarPara('buscar.html')">
       <div class="card-icon">🔎</div>
       <div class="card-content">
         <h3>Consultar / Filtrar</h3>
         <p>Visualizar, buscar e filtrar registros existentes</p>
       </div>
-    </a>
+    </div>
   </div>
 
   <div class="footer">
@@ -130,6 +130,10 @@
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
+
+    function navegarPara(pagina) {
+      window.location.href = pagina;
+    }
   </script>
 </body>
 </html>

@@ -147,12 +147,6 @@
         <textarea id="descricao" rows="3" placeholder="Descreva os detalhes..." required></textarea>
       </div>
 
-      <!-- INPUT DE FOTO / VÍDEO -->
-      <div class="form-group">
-        <label for="midia">📸 Anexar Foto ou Vídeo:</label>
-        <input type="file" id="midia" accept="image/*,video/*">
-      </div>
-
       <!-- OPÇÃO DE ENVIAR PARA O GRUPO -->
       <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
         <input type="checkbox" id="enviarGrupo" checked style="width: auto; margin: 0;">
@@ -203,41 +197,23 @@
       if (type === 'status') selectedStatus = value;
     }
 
-    // SUBMIT DO FORMULÁRIO
+    // SUBMIT DO FORMULÁRIO (CORRIGIDO)
     document.getElementById('ocorrenciaForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
-      const fileInput = document.getElementById('midia');
-      const file = fileInput.files[0];
-
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          const fileData = {
-            name: file.name,
-            type: file.type,
-            base64: event.target.result.split(',')[1]
-          };
-          enviarParaBot(fileData);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        enviarParaBot(null);
-      }
-    });
-
-    function enviarParaBot(fileData) {
       const payload = {
         tipo: 'NOVA_OCORRENCIA',
         maquina: document.getElementById('maquina').value,
         categoria: selectedCategoria,
         status: selectedStatus,
         descricao: document.getElementById('descricao').value,
-        enviarGrupo: document.getElementById('enviarGrupo').checked,
-        arquivo: fileData
+        enviarGrupo: document.getElementById('enviarGrupo').checked
       };
+
+      // Envia os dados e fecha a janela imediatamente
       tg.sendData(JSON.stringify(payload));
-    }
+      tg.close();
+    });
 
     function executarPesquisa() {
       const termo = document.getElementById('campo-busca').value;
@@ -247,7 +223,9 @@
         tipo: 'PESQUISAR',
         termo: termo
       };
+      
       tg.sendData(JSON.stringify(payload));
+      tg.close();
     }
   </script>
 </body>

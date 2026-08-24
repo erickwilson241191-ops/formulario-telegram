@@ -58,16 +58,9 @@
       font-size: 14px;
       margin-bottom: 6px;
     }
-    .card-id {
-      color: var(--primary-color);
-    }
-    .card-body {
-      font-size: 13px;
-      line-height: 1.4;
-    }
-    .card-body div {
-      margin-bottom: 4px;
-    }
+    .card-id { color: var(--primary-color); }
+    .card-body { font-size: 13px; line-height: 1.4; }
+    .card-body div { margin-bottom: 4px; }
     .badge {
       display: inline-block;
       padding: 2px 6px;
@@ -87,7 +80,7 @@
       text-decoration: none;
       font-weight: bold;
     }
-    #loading {
+    #status-msg {
       text-align: center;
       padding: 20px;
       font-weight: bold;
@@ -103,48 +96,56 @@
     <input type="text" id="searchInput" onkeyup="filtrarOcorrencias()" placeholder="Filtrar por máquina, ID, status ou palavra-chave...">
   </div>
 
-  <div id="loading">⏳ Carregando ocorrências da planilha...</div>
+  <div id="status-msg">⏳ Carregando dados da planilha...</div>
   <div id="listaOcorrencias"></div>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // ID DA SUA PLANILHA
     const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
     const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
 
     let todasOcorrencias = [];
 
     async function carregarOcorrencias() {
+      const statusDiv = document.getElementById('status-msg');
       try {
         const response = await fetch(URL_GVIZ);
-        const text = await response.text();
         
-        // Remove a camada de proteção JSON do Google Visualization
+        if (!response.ok) {
+          throw new Error('A planilha está privada ou o ID está incorreto.');
+        }
+
+        const text = await response.text();
         const jsonString = text.substring(47, text.length - 2);
         const data = JSON.parse(jsonString);
 
         const rows = data.table.rows;
+        if (!rows || rows.length === 0) {
+          statusDiv.innerText = 'ℹ️ Nenhuma ocorrência cadastrada na planilha.';
+          return;
+        }
+
         todasOcorrencias = rows.map(r => {
           const c = r.c;
           return {
-            id: c[0] ? c[0].v : '',
-            data: c[1] ? c[1].v : '',
-            tecnico: c[2] ? c[2].v : '',
-            maquina: c[3] ? c[3].v : '',
-            categoria: c[4] ? c[4].v : '',
-            descricao: c[5] ? c[5].v : '',
-            status: c[6] ? c[6].v : '',
-            midia: c[7] ? c[7].v : ''
+            id: c && c[0] ? c[0].v : '',
+            data: c && c[1] ? c[1].v : '',
+            tecnico: c && c[2] ? c[2].v : '',
+            maquina: c && c[3] ? c[3].v : '',
+            categoria: c && c[4] ? c[4].v : '',
+            descricao: c && c[5] ? c[5].v : '',
+            status: c && c[6] ? c[6].v : '',
+            midia: c && c[7] ? c[7].v : ''
           };
-        }).reverse(); // Exibe as mais recentes primeiro
+        }).reverse();
 
-        document.getElementById('loading').style.display = 'none';
+        statusDiv.style.display = 'none';
         renderizarLista(todasOcorrencias);
       } catch (error) {
-        console.error('Erro ao carregar os dados:', error);
-        document.getElementById('loading').innerText = '❌ Erro ao carregar ocorrências. Verifique a planilha.';
+        console.error('Erro:', error);
+        statusDiv.innerHTML = `<span style="color:red;">❌ Erro ao carregar.<br>Certifique-se de que a planilha está pública em "Qualquer pessoa com o link".</span>`;
       }
     }
 
@@ -153,7 +154,7 @@
       container.innerHTML = '';
 
       if (lista.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#777;">Nenhuma ocorrência encontrada.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#777;">Nenhum resultado encontrado.</p>';
         return;
       }
 
@@ -162,12 +163,13 @@
         card.className = 'card';
 
         let statusClass = 'status-aberto';
-        if (item.status.includes('Andamento')) statusClass = 'status-andamento';
-        if (item.status.includes('Concluído')) statusClass = 'status-concluido';
-        if (item.status.includes('Cancelado')) statusClass = 'status-cancelado';
+        const st = String(item.status);
+        if (st.includes('Andamento')) statusClass = 'status-andamento';
+        if (st.includes('Concluído')) statusClass = 'status-concluido';
+        if (st.includes('Cancelado')) statusClass = 'status-cancelado';
 
         let linkMidia = '';
-        if (item.midia && item.midia.startsWith('http')) {
+        if (item.midia && String(item.midia).startsWith('http')) {
           linkMidia = `<a href="${item.midia}" target="_blank" class="midia-link">🖼️ Ver Mídia Anexada</a>`;
         }
 
@@ -202,7 +204,6 @@
       renderizarLista(filtradas);
     }
 
-    // Inicializa a busca ao abrir
     carregarOcorrencias();
   </script>
 </body>

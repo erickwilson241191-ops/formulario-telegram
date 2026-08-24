@@ -45,7 +45,7 @@
       color: var(--text-color);
     }
     
-    /* CARD CLICÁVEL */
+    /* CARD EXPANSÍVEL */
     .card {
       background: var(--secondary-bg);
       border-left: 5px solid var(--primary-color);
@@ -68,11 +68,17 @@
     }
     .card-id { color: var(--primary-color); }
     
-    /* RESUMO RESUMIDO (SEMPRE VISÍVEL) */
+    /* DATA E RESUMO SEMPRE VISÍVEIS */
+    .card-meta {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+      font-weight: 500;
+    }
     .card-preview {
       font-size: 13px;
       margin-top: 6px;
-      color: #555;
+      color: #333;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -126,7 +132,7 @@
       font-size: 11px;
       color: #888;
       text-align: right;
-      margin-top: 4px;
+      margin-top: 6px;
     }
 
     #status-msg {
@@ -145,7 +151,7 @@
     <input type="text" id="searchInput" onkeyup="filtrarOcorrencias()" placeholder="Filtrar por máquina, ID, status ou palavra-chave...">
   </div>
 
-  <div id="status-msg">⏳ Carregando dados da planilha...</div>
+  <div id="status-msg">⏳ Carregando ocorrências da mais recente à mais antiga...</div>
   <div id="listaOcorrencias"></div>
 
   <script>
@@ -153,7 +159,10 @@
     tg.expand();
 
     const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
-    const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
+    
+    // Consulta ordenando pela Coluna B (Data) do mais recente para o mais antigo (ORDER BY B DESC)
+    const queryGviz = encodeURIComponent("SELECT * ORDER BY B DESC");
+    const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tq=${queryGviz}&tqx=out:json`;
 
     let todasOcorrencias = [];
 
@@ -185,7 +194,10 @@
             status: c && c[6] ? c[6].v : '',
             midia: c && c[7] ? c[7].v : ''
           };
-        }).reverse();
+        });
+
+        // Ordenação extra no JavaScript para garantir ordem por ID/ordem de inserção inversa
+        todasOcorrencias.sort((a, b) => Number(b.id) - Number(a.id));
 
         statusDiv.style.display = 'none';
         renderizarLista(todasOcorrencias);
@@ -226,6 +238,9 @@
             <span class="badge ${statusClass}">${item.status}</span>
           </div>
           
+          <!-- DATA DA OCORRÊNCIA EM DESTAQUE -->
+          <div class="card-meta">📅 Registrado em: ${item.data}</div>
+
           <!-- RESUMO RÁPIDO (Visível por padrão) -->
           <div class="card-preview">📝 ${item.descricao}</div>
           <div class="click-hint">👇 Toque para ver detalhes</div>
@@ -252,7 +267,8 @@
           String(item.categoria).toLowerCase().includes(termo) ||
           String(item.descricao).toLowerCase().includes(termo) ||
           String(item.status).toLowerCase().includes(termo) ||
-          String(item.tecnico).toLowerCase().includes(termo)
+          String(item.tecnico).toLowerCase().includes(termo) ||
+          String(item.data).toLowerCase().includes(termo)
         );
       });
       renderizarLista(filtradas);

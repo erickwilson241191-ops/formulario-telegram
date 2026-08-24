@@ -153,6 +153,14 @@
         <input type="file" id="midia" accept="image/*,video/*">
       </div>
 
+      <!-- OPÇÃO DE ENVIAR PARA O GRUPO -->
+      <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+        <input type="checkbox" id="enviarGrupo" checked style="width: auto; margin: 0;">
+        <label for="enviarGrupo" style="margin: 0; font-weight: normal; cursor: pointer;">
+          📢 Enviar notificação para o grupo
+        </label>
+      </div>
+
       <button type="submit" class="submit-btn">🚀 Registrar Ocorrência</button>
     </form>
   </div>
@@ -225,6 +233,7 @@
         categoria: selectedCategoria,
         status: selectedStatus,
         descricao: document.getElementById('descricao').value,
+        enviarGrupo: document.getElementById('enviarGrupo').checked,
         arquivo: fileData
       };
       tg.sendData(JSON.stringify(payload));
@@ -235,7 +244,7 @@
       if (!termo) return;
 
       const payload = {
-        tipo: 'PESQUISA',
+        tipo: 'PESQUISAR',
         termo: termo
       };
       tg.sendData(JSON.stringify(payload));

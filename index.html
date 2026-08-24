@@ -25,7 +25,7 @@
 
     .header {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       padding-top: 10px;
     }
 
@@ -88,16 +88,63 @@
       color: var(--hint-color);
     }
 
+    /* ESTILO DO BOTÃO DE VOLTAR NO TELEGRAM */
+    .btn-voltar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      background-color: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-voltar:active {
+      background-color: var(--secondary-bg);
+    }
+
     .footer {
-      margin-top: 30px;
+      margin-top: 20px;
       text-align: center;
       font-size: 11px;
       color: var(--hint-color);
     }
+    .top-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.btn-back {
+  background: var(--secondary-bg, #f4f4f5);
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--primary-color, #0088cc);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-back:active {
+  transform: scale(0.95);
+}
   </style>
 </head>
 <body>
-
+  <div class="top-bar">
+    <button class="btn-back" onclick="voltarPagina()">⬅️ Voltar</button>
+  </div>
   <div class="header">
     <h1>⚙️ Gestão de Ocorrências</h1>
     <p>Selecione uma das opções abaixo para prosseguir</p>
@@ -123,6 +170,11 @@
     </div>
   </div>
 
+  <!-- BOTÃO FECHAR / VOLTAR PARA O TELEGRAM -->
+  <button class="btn-voltar" onclick="fecharTelegram()">
+    ⬅️ Voltar para o Chat
+  </button>
+
   <div class="footer">
     Sistema de Manutenção & Ocorrências
   </div>
@@ -134,6 +186,18 @@
     function navegarPara(pagina) {
       window.location.href = pagina;
     }
+
+    function fecharTelegram() {
+      tg.close(); // Fecha a janela do WebApp e volta para a conversa
+    }
+    
   </script>
+    function voltarPagina() {
+  if (document.referrer.includes('index.html')) {
+    window.history.back();
+  } else {
+    window.location.href = 'index.html'; // Garante que volta para a home
+  }
+}
 </body>
 </html>

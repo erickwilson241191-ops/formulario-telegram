@@ -6,6 +6,29 @@
   <title>Sistema de Ocorrências</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
+    .top-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.btn-back {
+  background: var(--secondary-bg, #f4f4f5);
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--primary-color, #0088cc);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-back:active {
+  transform: scale(0.95);
+}
     :root {
       --primary-color: #0088cc;
       --bg-color: var(--tg-theme-bg-color, #ffffff);
@@ -94,6 +117,10 @@
 </head>
 <body>
 
+  <div class="top-bar">
+  <button class="btn-back" onclick="voltarPagina()">⬅️ Voltar</button>
+</div>
+
   <!-- NAVEGAÇÃO -->
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('registrar')">📝 Nova Ocorrência</button>
@@ -167,6 +194,13 @@
   </div>
 
   <script>
+    function voltarPagina() {
+  if (document.referrer.includes('index.html')) {
+    window.history.back();
+  } else {
+    window.location.href = 'index.html'; // Garante que volta para a home
+  }
+}
     const tg = window.Telegram.WebApp;
     tg.expand();
 

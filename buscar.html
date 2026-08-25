@@ -6,30 +6,6 @@
   <title>Consulta de Ocorrências</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    .top-bar {
-      display: flex;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .btn-back {
-      background: var(--secondary-bg, #f4f4f5);
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-size: 13px;
-      font-weight: bold;
-      color: var(--primary-color, #0088cc);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .btn-back:active {
-      transform: scale(0.95);
-    }
-
     :root {
       --primary-color: #0088cc;
       --bg-color: var(--tg-theme-bg-color, #ffffff);
@@ -221,9 +197,6 @@
   </style>
 </head>
 <body>
-  <div class="top-bar">
-    <button class="btn-back" onclick="voltarPagina()">⬅️ Voltar</button>
-  </div>
 
   <h2>🔎 Consultar Ocorrências</h2>
 
@@ -258,16 +231,15 @@
   <div id="listaOcorrencias"></div>
 
   <script>
-    function voltarPagina() {
-      if (document.referrer.includes('index.html')) {
-        window.history.back();
-      } else {
-        window.location.href = 'index.html';
-      }
-    }
-
+    // Inicialização do WebApp do Telegram
     const tg = window.Telegram.WebApp;
     tg.expand();
+
+    // Ativação do Botão Voltar Nativo no topo do Telegram
+    tg.BackButton.show();
+    tg.BackButton.onClick(function() {
+      window.location.href = 'index.html';
+    });
 
     const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
     const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
@@ -276,7 +248,7 @@
     let filtroStatusAtivo = 'TODOS';
     let filtroCategoriaAtivo = 'TODOS';
 
-    // 1. VERIFICA SE VEIO UM STATUS VIA URL (Ex: buscar.html?status=Aberto)
+    // Checa se veio um parâmetro pela URL (ex: buscar.html?status=Aberto)
     function verificarFiltroURL() {
       const urlParams = new URLSearchParams(window.location.search);
       const statusParam = urlParams.get('status');
@@ -284,7 +256,6 @@
       if (statusParam) {
         filtroStatusAtivo = statusParam;
         
-        // Atualiza a seleção visual dos chips de status
         const chips = document.querySelectorAll('#statusChips .chip');
         chips.forEach(chip => {
           chip.classList.remove('active');
@@ -295,7 +266,6 @@
       }
     }
 
-    // Função para converter "DD/MM/AAAA HH:MM" em um objeto Date para ordenação
     function parseDataHora(stringDataHora) {
       if (!stringDataHora) return new Date(0);
       try {
@@ -338,7 +308,6 @@
           };
         });
 
-        // Ordenação por data (Mais recente primeiro)
         todasOcorrencias.sort((a, b) => {
           const dataA = parseDataHora(a.data);
           const dataB = parseDataHora(b.data);
@@ -347,13 +316,12 @@
 
         statusDiv.style.display = 'none';
 
-        // Checa se há filtro de URL e aplica
         verificarFiltroURL();
         aplicarFiltros();
 
       } catch (error) {
         console.error('Erro:', error);
-        statusDiv.innerHTML = `<span style="color:red;">❌ Erro ao carregar dados.<br>Verifique a conexão ou a permissão da planilha.</span>`;
+        statusDiv.innerHTML = `<span style="color:red;">❌ Erro ao carregar dados.<br>Verifique se a planilha está compartilhada como pública ("Qualquer pessoa com o link").</span>`;
       }
     }
 
@@ -372,7 +340,6 @@
       const termo = document.getElementById('searchInput').value.toLowerCase();
 
       const filtradas = todasOcorrencias.filter(item => {
-        // Filtro por Texto
         const bateuTexto = (
           String(item.id).toLowerCase().includes(termo) ||
           String(item.maquina).toLowerCase().includes(termo) ||
@@ -381,11 +348,9 @@
           String(item.data).toLowerCase().includes(termo)
         );
 
-        // Filtro por Status
         const bateuStatus = (filtroStatusAtivo === 'TODOS') || 
           String(item.status).toLowerCase().includes(filtroStatusAtivo.toLowerCase());
 
-        // Filtro por Categoria
         const bateuCategoria = (filtroCategoriaAtivo === 'TODOS') || 
           String(item.categoria).toLowerCase().includes(filtroCategoriaAtivo.toLowerCase());
 
@@ -444,14 +409,6 @@
     }
 
     carregarOcorrencias();
-    // Ativa o botão de voltar nativo no topo da tela do Telegram
-const tg = window.Telegram.WebApp;
-tg.expand();
-tg.BackButton.show();
-tg.BackButton.onClick(function() {
-  window.location.href = 'index.html';
-});
-    
   </script>
 </body>
 </html>

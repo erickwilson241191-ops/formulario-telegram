@@ -265,18 +265,27 @@
     }
 
     function carregarUsuario() {
-  // 1. Tenta pegar o nome salvo manualmente no localStorage
+  const user = tg.initDataUnsafe?.user;
+  
+  // 1. Tenta pegar o nome salvo manualmente no localStorage (se o usuário editou no config.html)
   const nomeSalvo = localStorage.getItem('userCustomName');
   
-  // 2. Tenta pegar o nome vindo do Telegram WebApp
-  const userTelegram = tg.initDataUnsafe?.user?.first_name;
-  
-  // 3. Tenta pegar de um parâmetro de URL (ex: index.html?nome=Carlos)
+  // 2. Tenta pegar da URL (caso a URL da WebApp passe ?tecnico=Nome)
   const urlParams = new URLSearchParams(window.location.search);
-  const nomeUrl = urlParams.get('nome');
+  const nomeUrl = urlParams.get('tecnico') || urlParams.get('nome');
+  
+  // 3. Monta o nome vindo do Telegram WebApp (First Name + Last Name)
+  let nomeTelegram = '';
+  if (user) {
+    const primeiroNome = user.first_name || '';
+    const sobrenome = user.last_name || '';
+    nomeTelegram = `${primeiroNome} ${sobrenome}`.trim();
+  }
 
-  const nomeFinal = nomeSalvo || userTelegram || nomeUrl || 'Técnico';
+  // Define qual nome usar respeitando as prioridades
+  const nomeFinal = nomeSalvo || nomeTelegram || nomeUrl || 'Técnico';
 
+  // Exibe na tela inicial
   document.getElementById('userName').innerText = `Olá, ${nomeFinal}! 👋`;
 }
 

@@ -265,13 +265,20 @@
     }
 
     function carregarUsuario() {
-      const user = tg.initDataUnsafe?.user;
-      if (user && user.first_name) {
-        document.getElementById('userName').innerText = `Olá, ${user.first_name}! 👋`;
-      } else {
-        document.getElementById('userName').innerText = `Olá! 👋`;
-      }
-    }
+  // 1. Tenta pegar o nome salvo manualmente no localStorage
+  const nomeSalvo = localStorage.getItem('userCustomName');
+  
+  // 2. Tenta pegar o nome vindo do Telegram WebApp
+  const userTelegram = tg.initDataUnsafe?.user?.first_name;
+  
+  // 3. Tenta pegar de um parâmetro de URL (ex: index.html?nome=Carlos)
+  const urlParams = new URLSearchParams(window.location.search);
+  const nomeUrl = urlParams.get('nome');
+
+  const nomeFinal = nomeSalvo || userTelegram || nomeUrl || 'Técnico';
+
+  document.getElementById('userName').innerText = `Olá, ${nomeFinal}! 👋`;
+}
 
     function navegarPara(pagina) { window.location.href = pagina; }
     function fecharTelegram() { tg.close(); }

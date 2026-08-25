@@ -1,10 +1,38 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+  <!-- CAMPO PARA SEU NOME -->
+<div class="config-card">
+  <div class="config-title">👤 Seu Nome ou Apelido</div>
+  <div class="config-desc">Como gostaria de ser chamado na tela inicial:</div>
+  <input type="text" id="inputNomeUsuario" placeholder="Digite seu nome..." 
+    style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--card-border); background: var(--bg-color); color: var(--text-color); font-size: 16px; font-weight: bold; box-sizing: border-box; margin-bottom: 10px;">
+  <button class="btn-font" onclick="salvarNomeUsuario()">💾 Salvar Nome</button>
+</div>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Configurações</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script 
+  // Carrega o nome atual no campo de entrada
+function carregarNomeSalvo() {
+  const nome = localStorage.getItem('userCustomName') || tg.initDataUnsafe?.user?.first_name || '';
+  document.getElementById('inputNomeUsuario').value = nome;
+}
+
+function salvarNomeUsuario() {
+  const novoNome = document.getElementById('inputNomeUsuario').value.trim();
+  if (novoNome) {
+    localStorage.setItem('userCustomName', novoNome);
+    alert('Nome salvo com sucesso!');
+  } else {
+    localStorage.removeItem('userCustomName');
+    alert('Nome redefinido para o padrão.');
+  }
+}
+
+// Chame a função no final do script:
+carregarNomeSalvo();
+  src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
       --primary-color: #006699;

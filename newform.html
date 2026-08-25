@@ -74,7 +74,6 @@
       min-height: 100px;
     }
 
-    /* Caixa do Histórico da Máquina */
     .historico-box {
       background: #e3f2fd;
       border-left: 4px solid #2196f3;
@@ -116,7 +115,7 @@
 
   <form id="formOcorrencia">
     
-    <!-- TÉCNICO RESPONSÁVEL (AUTO) -->
+    <!-- TÉCNICO RESPONSÁVEL -->
     <div class="form-group">
       <label for="tecnico">👤 Técnico Responsável:</label>
       <input type="text" id="tecnico" readonly placeholder="Carregando nome...">
@@ -248,7 +247,7 @@
 
     carregarNomeTecnico();
 
-    // 3. ENVIO COM FOTO E DADOS COMPLETOS
+    // 3. ENVIO DOS DADOS AO TELEGRAM (CORRIGIDO)
     document.getElementById('formOcorrencia').addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -279,7 +278,14 @@
         enviarGrupo: true
       };
 
-      tg.sendData(JSON.stringify(dados));
+      try {
+        tg.sendData(JSON.stringify(dados));
+        tg.close(); // Garante o fechamento da janela após o envio
+      } catch (err) {
+        alert("Erro ao enviar dados. Abra o formulário via teclado do Telegram.");
+        btn.disabled = false;
+        btn.innerText = '🚀 Enviar Ocorrência';
+      }
     });
   </script>
 </body>

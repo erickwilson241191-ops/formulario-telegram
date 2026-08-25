@@ -233,6 +233,15 @@
         <p>Buscar ocorrências cadastradas</p>
       </div>
     </div>
+
+    <!-- ABA DASHBOARD ADICIONADA -->
+    <div class="menu-card" onclick="navegarPara('dashboard.html')">
+      <div class="card-icon">📊</div>
+      <div class="card-content">
+        <h3>Painel Dashboard</h3>
+        <p>Indicadores gerais e gráficos</p>
+      </div>
+    </div>
   </div>
 
   <!-- FEED RECENTE -->
@@ -246,114 +255,114 @@
   </button>
 
   <script>
-  const tg = window.Telegram.WebApp;
+    const tg = window.Telegram.WebApp;
 
-  // 1. Força a expansão e avisa o Telegram que o app está pronto
-  tg.expand();
+    // 1. Força a expansão e avisa o Telegram que o app está pronto
+    tg.expand();
 
-  function carregarUsuario() {
-  // 1. Tenta pegar a tag 'tecnico' ou 'nome' da URL enviada pelo Bot
-  const urlParams = new URLSearchParams(window.location.search);
-  const nomeUrl = urlParams.get('tecnico') || urlParams.get('nome');
-  
-  // 2. Tenta pegar do Telegram WebApp SDK (se disponível)
-  const userTelegram = window.Telegram.WebApp.initDataUnsafe?.user?.first_name;
-  
-  // 3. Tenta pegar nome editado no aplicativo (se o usuário mudou nas configs)
-  const nomeConfig = localStorage.getItem('userCustomName');
+    function carregarUsuario() {
+      // 1. Tenta pegar a tag 'tecnico' ou 'nome' da URL enviada pelo Bot
+      const urlParams = new URLSearchParams(window.location.search);
+      const nomeUrl = urlParams.get('tecnico') || urlParams.get('nome');
+      
+      // 2. Tenta pegar do Telegram WebApp SDK (se disponível)
+      const userTelegram = window.Telegram.WebApp.initDataUnsafe?.user?.first_name;
+      
+      // 3. Tenta pegar nome editado no aplicativo (se o usuário mudou nas configs)
+      const nomeConfig = localStorage.getItem('userCustomName');
 
-  // Define a prioridade do nome a ser exibido
-  const nomeFinal = nomeConfig || nomeUrl || userTelegram || 'Técnico';
+      // Define a prioridade do nome a ser exibido
+      const nomeFinal = nomeConfig || nomeUrl || userTelegram || 'Técnico';
 
-  // Se veio um nome válido da URL ou Telegram, salva em cache local
-  if (nomeUrl || userTelegram) {
-    localStorage.setItem('userTelegramName', nomeUrl || userTelegram);
-  }
+      // Se veio um nome válido da URL ou Telegram, salva em cache local
+      if (nomeUrl || userTelegram) {
+        localStorage.setItem('userTelegramName', nomeUrl || userTelegram);
+      }
 
-  // Atualiza o texto na tela inicial
-  document.getElementById('userName').innerText = `Olá, ${nomeFinal}! 👋`;
-}
-
-// Executa a função imediatamente ao abrir a página
-carregarUsuario();
-
-  // Aplica as preferências visuais de fonte e tema
-  function aplicarPreferencias() {
-    const fontScale = localStorage.getItem('userFontScale') || 1.1;
-    const theme = localStorage.getItem('userTheme') || 'light';
-
-    document.documentElement.style.setProperty('--font-scale', fontScale);
-
-    if (theme === 'black') {
-      document.body.classList.add('theme-black');
-    } else {
-      document.body.classList.remove('theme-black');
+      // Atualiza o texto na tela inicial
+      document.getElementById('userName').innerText = `Olá, ${nomeFinal}! 👋`;
     }
-  }
 
-  function navegarPara(pagina) { window.location.href = pagina; }
-  function fecharTelegram() { tg.close(); }
-  function filtrarPorStatus(status) { window.location.href = `buscar.html?status=${status}`; }
+    // Executa a função imediatamente ao abrir a página
+    carregarUsuario();
 
-  const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
-  const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
+    // Aplica as preferências visuais de fonte e tema
+    function aplicarPreferencias() {
+      const fontScale = localStorage.getItem('userFontScale') || 1.1;
+      const theme = localStorage.getItem('userTheme') || 'light';
 
-  async function carregarDashboard() {
-    try {
-      const response = await fetch(URL_GVIZ);
-      const text = await response.text();
-      const jsonString = text.substring(47, text.length - 2);
-      const data = JSON.parse(jsonString);
+      document.documentElement.style.setProperty('--font-scale', fontScale);
 
-      const rows = data.table.rows;
-      if (!rows || rows.length === 0) return;
-
-      let abertos = 0, andamento = 0, concluidos = 0;
-
-      const ocorrencias = rows.map(r => {
-        const c = r.c;
-        const status = c && c[6] ? String(c[6].v) : '';
-        
-        if (status.includes('Aberto')) abertos++;
-        else if (status.includes('Andamento')) andamento++;
-        else if (status.includes('Concluído')) concluidos++;
-
-        return {
-          id: c && c[0] ? c[0].v : '',
-          maquina: c && c[3] ? c[3].v : '',
-          descricao: c && c[5] ? c[5].v : '',
-          status: status
-        };
-      });
-
-      document.getElementById('kpiAbertos').innerText = abertos;
-      document.getElementById('kpiAndamento').innerText = andamento;
-      document.getElementById('kpiConcluidos').innerText = concluidos;
-
-      const ultimas = ocorrencias.reverse().slice(0, 10);
-      const feedContainer = document.getElementById('feedRecente');
-      feedContainer.innerHTML = '';
-
-      ultimas.forEach(item => {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'feed-item';
-        itemDiv.innerHTML = `
-          <div class="feed-header">
-            <span>#${item.id} - ${item.maquina}</span>
-            <span style="color: var(--primary-color);">${item.status}</span>
-          </div>
-          <div>${item.descricao}</div>
-        `;
-        feedContainer.appendChild(itemDiv);
-      });
-
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error);
+      if (theme === 'black') {
+        document.body.classList.add('theme-black');
+      } else {
+        document.body.classList.remove('theme-black');
+      }
     }
-  }
 
-  aplicarPreferencias();
-  carregarDashboard();
-</script>
+    function navegarPara(pagina) { window.location.href = pagina; }
+    function fecharTelegram() { tg.close(); }
+    function filtrarPorStatus(status) { window.location.href = `buscar.html?status=${status}`; }
+
+    const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
+    const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
+
+    async function carregarDashboard() {
+      try {
+        const response = await fetch(URL_GVIZ);
+        const text = await response.text();
+        const jsonString = text.substring(47, text.length - 2);
+        const data = JSON.parse(jsonString);
+
+        const rows = data.table.rows;
+        if (!rows || rows.length === 0) return;
+
+        let abertos = 0, andamento = 0, concluidos = 0;
+
+        const ocorrencias = rows.map(r => {
+          const c = r.c;
+          const status = c && c[6] ? String(c[6].v) : '';
+          
+          if (status.includes('Aberto')) abertos++;
+          else if (status.includes('Andamento')) andamento++;
+          else if (status.includes('Concluído')) concluidos++;
+
+          return {
+            id: c && c[0] ? c[0].v : '',
+            maquina: c && c[3] ? c[3].v : '',
+            descricao: c && c[5] ? c[5].v : '',
+            status: status
+          };
+        });
+
+        document.getElementById('kpiAbertos').innerText = abertos;
+        document.getElementById('kpiAndamento').innerText = andamento;
+        document.getElementById('kpiConcluidos').innerText = concluidos;
+
+        const ultimas = ocorrencias.reverse().slice(0, 10);
+        const feedContainer = document.getElementById('feedRecente');
+        feedContainer.innerHTML = '';
+
+        ultimas.forEach(item => {
+          const itemDiv = document.createElement('div');
+          itemDiv.className = 'feed-item';
+          itemDiv.innerHTML = `
+            <div class="feed-header">
+              <span>#${item.id} - ${item.maquina}</span>
+              <span style="color: var(--primary-color);">${item.status}</span>
+            </div>
+            <div>${item.descricao}</div>
+          `;
+          feedContainer.appendChild(itemDiv);
+        });
+
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+      }
+    }
+
+    aplicarPreferencias();
+    carregarDashboard();
+  </script>
 </body>
 </html>

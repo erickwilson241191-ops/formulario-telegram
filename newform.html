@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nova Ocorrência</title>
+  <title>Registrar Ocorrência</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
@@ -17,8 +17,9 @@
     label { font-weight: bold; font-size: 13px; display: block; margin-top: 12px; margin-bottom: 4px; }
     input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: var(--secondary-bg); color: var(--text-color); }
     textarea { resize: vertical; height: 80px; }
-    
-    /* Sugestão Inteligente */
+    input[readonly] { opacity: 0.7; cursor: not-allowed; }
+
+    /* Caixas Especiais */
     .historico-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 10px; margin-top: 10px; border-radius: 4px; font-size: 12px; display: none; }
     .historico-box strong { color: #0d47a1; }
     
@@ -32,7 +33,7 @@
 
   <form id="formOcorrencia">
     <label for="tecnico">Técnico Responsável:</label>
-    <input type="text" id="tecnico" required placeholder="Seu nome">
+    <input type="text" id="tecnico" readonly placeholder="Carregando nome...">
 
     <label for="maquina">Máquina / Equipamento:</label>
     <select id="maquina" onchange="buscarHistoricoMaquina(this.value)" required>
@@ -45,7 +46,7 @@
 
     <!-- DICA DO HISTÓRICO -->
     <div id="historicoBox" class="historico-box">
-      💡 <strong>Última solução nesta máquina:</strong>
+      💡 <strong>Última ocorrência resolvida nesta máquina:</strong>
       <div id="historicoTexto">Carregando...</div>
     </div>
 
@@ -58,9 +59,9 @@
     </select>
 
     <label for="descricao">Descrição do Problema:</label>
-    <textarea id="descricao" required placeholder="Detalle o que aconteceu..."></textarea>
+    <textarea id="descricao" required placeholder="Detalhe o que aconteceu..."></textarea>
 
-    <label for="foto">Anexar Foto:</label>
+    <label for="foto">Anexar Foto (Opcional):</label>
     <input type="file" id="foto" accept="image/*">
 
     <button type="submit" id="btnSalvar" class="btn-submit">Enviar Ocorrência</button>
@@ -71,6 +72,16 @@
     tg.expand();
     tg.BackButton.show();
     tg.BackButton.onClick(() => window.location.href = 'index.html');
+
+    // Preenchimento Automático do Nome via Telegram
+    const user = tg.initDataUnsafe?.user;
+    const campoTecnico = document.getElementById('tecnico');
+    if (user) {
+      campoTecnico.value = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || 'Técnico';
+    } else {
+      campoTecnico.removeAttribute('readonly');
+      campoTecnico.placeholder = 'Digite seu nome';
+    }
 
     const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
     const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
@@ -86,14 +97,12 @@
         const json = JSON.parse(text.substring(47, text.length - 2));
         const rows = json.table.rows;
 
-        // Procura a última encerrada/concluída para essa máquina
         const historico = rows
           .map(r => ({ maquina: r.c[3]?.v, desc: r.c[5]?.v, status: r.c[6]?.v }))
           .filter(r => r.maquina === maquina && r.status && r.status.includes('Concluído'));
 
         if (historico.length > 0) {
-          const ultima = historico[historico.length - 1];
-          txt.innerText = ultima.desc;
+          txt.innerText = historico[historico.length - 1].desc;
           box.style.display = 'block';
         } else {
           box.style.display = 'none';
@@ -121,7 +130,7 @@
 
       const payload = {
         acao: 'CRIAR_OCORRENCIA',
-        tecnico: document.getElementById('tecnico').value,
+        tecnico: campoTecnico.value,
         maquina: document.getElementById('maquina').value,
         categoria: document.getElementById('categoria').value,
         descricao: document.getElementById('descricao').value,

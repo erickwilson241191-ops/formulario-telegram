@@ -3,260 +3,171 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Ocorrências</title>
+  <title>Nova Ocorrência</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    .top-bar {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.btn-back {
-  background: var(--secondary-bg, #f4f4f5);
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: bold;
-  color: var(--primary-color, #0088cc);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.btn-back:active {
-  transform: scale(0.95);
-}
     :root {
-      --primary-color: #0088cc;
-      --bg-color: var(--tg-theme-bg-color, #ffffff);
-      --text-color: var(--tg-theme-text-color, #222222);
-      --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5);
+      --primary-color: #006699;
+      --bg-color: #ffffff;
+      --text-color: #111111;
+      --secondary-bg: #eef2f5;
+      --card-border: #cccccc;
+      --font-scale: 1.1;
     }
+
+    body.theme-black {
+      --primary-color: #33b5e5;
+      --bg-color: #000000;
+      --text-color: #ffffff;
+      --secondary-bg: #121212;
+      --card-border: #333333;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
       margin: 0;
-      padding: 12px;
+      padding: 16px;
       box-sizing: border-box;
+      font-size: calc(16px * var(--font-scale));
     }
-    .tabs {
-      display: flex;
+
+    h2 {
+      margin-top: 0;
+      color: var(--primary-color);
+      font-size: calc(20px * var(--font-scale));
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 6px;
+    }
+
+    .form-group {
       margin-bottom: 16px;
-      border-bottom: 2px solid #ddd;
     }
-    .tab-btn {
-      flex: 1;
-      padding: 10px;
-      background: none;
-      border: none;
-      font-size: 15px;
+
+    label {
+      display: block;
       font-weight: bold;
-      color: #777;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-    }
-    .tab-btn.active {
-      color: var(--primary-color);
-      border-bottom-color: var(--primary-color);
-    }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    .grid-selector {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .btn-option {
-      padding: 10px 6px;
-      background: var(--secondary-bg);
-      border: 2px solid transparent;
-      border-radius: 8px;
-      text-align: center;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-option.selected {
-      border-color: var(--primary-color);
-      background-color: rgba(0, 136, 204, 0.1);
-      color: var(--primary-color);
+      margin-bottom: 6px;
+      font-size: calc(14px * var(--font-scale));
     }
 
-    .form-group { margin-bottom: 14px; }
-    label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; }
-    input, select, textarea {
+    select, textarea, input[type="text"] {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 14px;
-      box-sizing: border-box;
+      padding: 12px;
+      border: 2px solid var(--card-border);
+      border-radius: 10px;
       background-color: var(--secondary-bg);
       color: var(--text-color);
+      font-size: calc(15px * var(--font-scale));
+      box-sizing: border-box;
+      font-weight: 600;
     }
-    .submit-btn {
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .btn-submit {
       width: 100%;
-      padding: 14px;
+      padding: 16px;
       background-color: var(--primary-color);
-      color: #fff;
+      color: white;
       border: none;
-      border-radius: 8px;
-      font-size: 16px;
+      border-radius: 12px;
+      font-size: calc(16px * var(--font-scale));
       font-weight: bold;
       cursor: pointer;
       margin-top: 10px;
+    }
+
+    .btn-submit:active {
+      opacity: 0.8;
     }
   </style>
 </head>
 <body>
 
-  <div class="top-bar">
-  <button class="btn-back" onclick="voltarPagina()">⬅️ Voltar</button>
-</div>
+  <h2>📝 Registrar Nova Ocorrência</h2>
 
-  <!-- NAVEGAÇÃO -->
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('registrar')">📝 Nova Ocorrência</button>
-    <button class="tab-btn" onclick="switchTab('pesquisar')">🔎 Pesquisar</button>
-  </div>
-
-  <!-- ABA 1: REGISTRAR -->
-  <div id="tab-registrar" class="tab-content active">
-    <form id="ocorrenciaForm">
-      <div class="form-group">
-        <label for="maquina">🏭 Máquina / Equipamento:</label>
-        <select id="maquina" required>
-          <option value="Passador 01">Passador 01</option>
-          <option value="Passador 02">Passador 02</option>
-          <option value="Maçaroca 01">Maçaroca 01</option>
-          <option value="Maçaroca 02">Maçaroca 02</option>
-          <option value="Filatório 01">Filatório 01</option>
-          <option value="Filatório 02">Filatório 02</option>
-          <option value="Conicaleira 01">Conicaleira 01</option>
-          <option value="Open End 01">Open End 01</option>
-          <option value="Outra / Geral">Outra / Geral</option>
-        </select>
-      </div>
-
-      <!-- BOTÕES DE CATEGORIA -->
-      <div class="form-group">
-        <label>🏷️ Categoria:</label>
-        <div class="grid-selector" id="categoria-group">
-          <div class="btn-option selected" onclick="selectOption('categoria', '🛠️ Corretiva', this)">🛠️ Corretiva</div>
-          <div class="btn-option" onclick="selectOption('categoria', '📅 Preventiva', this)">📅 Preventiva</div>
-          <div class="btn-option" onclick="selectOption('categoria', '💡 Melhoria', this)">💡 Melhoria</div>
-          <div class="btn-option" onclick="selectOption('categoria', '⏳ Pendência', this)">⏳ Pendência</div>
-        </div>
-      </div>
-
-      <!-- BOTÕES DE STATUS -->
-      <div class="form-group">
-        <label>🚨 Status Inicial:</label>
-        <div class="grid-selector" id="status-group">
-          <div class="btn-option selected" onclick="selectOption('status', '🔴 Aberto', this)">🔴 Aberto</div>
-          <div class="btn-option" onclick="selectOption('status', '🟡 Em Andamento', this)">🟡 Em Andamento</div>
-          <div class="btn-option" onclick="selectOption('status', '🟢 Concluído', this)">🟢 Concluído</div>
-          <div class="btn-option" onclick="selectOption('status', '⚪ Cancelado', this)">⚪ Cancelado</div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="descricao">📝 Descrição:</label>
-        <textarea id="descricao" rows="3" placeholder="Descreva os detalhes..." required></textarea>
-      </div>
-
-      <!-- OPÇÃO DE ENVIAR PARA O GRUPO -->
-      <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
-        <input type="checkbox" id="enviarGrupo" checked style="width: auto; margin: 0;">
-        <label for="enviarGrupo" style="margin: 0; font-weight: normal; cursor: pointer;">
-          📢 Enviar notificação para o grupo
-        </label>
-      </div>
-
-      <button type="submit" class="submit-btn">🚀 Registrar Ocorrência</button>
-    </form>
-  </div>
-
-  <!-- ABA 2: PESQUISAR -->
-  <div id="tab-pesquisar" class="tab-content">
+  <form id="formOcorrencia">
+    
+    <!-- SELEÇÃO DE MÁQUINA DIRETA (SEM ABA DE PESQUISA) -->
     <div class="form-group">
-      <label for="campo-busca">🔎 Termo de Busca:</label>
-      <input type="text" id="campo-busca" placeholder="Digite máquina, ID ou palavra-chave...">
+      <label for="maquina">🏭 Máquina / Equipamento:</label>
+      <select id="maquina" required>
+        <option value="" disabled selected>Selecione a máquina...</option>
+        <option value="Torno CNC">Torno CNC</option>
+        <option value="Fresadora">Fresadora</option>
+        <option value="Prensa Hidráulica">Prensa Hidráulica</option>
+        <option value="Compressor de Ar">Compressor de Ar</option>
+        <option value="Esteira Transportadora">Esteira Transportadora</option>
+        <option value="Injetora">Injetora</option>
+        <option value="Outros / Geral">Outros / Geral</option>
+      </select>
     </div>
-    <button type="button" class="submit-btn" onclick="executarPesquisa()">Buscar Ocorrências</button>
-  </div>
+
+    <!-- CATEGORIA -->
+    <div class="form-group">
+      <label for="categoria">🏷️ Categoria:</label>
+      <select id="categoria" required>
+        <option value="Corretiva">🛠️ Corretiva</option>
+        <option value="Preventiva">📅 Preventiva</option>
+        <option value="Melhoria">💡 Melhoria</option>
+        <option value="Pendência">⏳ Pendência</option>
+      </select>
+    </div>
+
+    <!-- STATUS -->
+    <div class="form-group">
+      <label for="status">🚨 Status Inicial:</label>
+      <select id="status" required>
+        <option value="Aberto">🔴 Aberto</option>
+        <option value="Andamento">🟡 Em Andamento</option>
+        <option value="Concluído">🟢 Concluído</option>
+      </select>
+    </div>
+
+    <!-- DESCRIÇÃO -->
+    <div class="form-group">
+      <label for="descricao">📝 Descrição do Problema/Serviço:</label>
+      <textarea id="descricao" placeholder="Descreva os detalhes aqui..." required></textarea>
+    </div>
+
+    <button type="submit" class="btn-submit">🚀 Enviar Ocorrência</button>
+  </form>
 
   <script>
-    function voltarPagina() {
-  if (document.referrer.includes('index.html')) {
-    window.history.back();
-  } else {
-    window.location.href = 'index.html'; // Garante que volta para a home
-  }
-}
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    let selectedCategoria = '🛠️ Corretiva';
-    let selectedStatus = '🔴 Aberto';
-
-    function switchTab(tab) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-      if (tab === 'registrar') {
-        document.querySelectorAll('.tab-btn')[0].classList.add('active');
-        document.getElementById('tab-registrar').classList.add('active');
-      } else {
-        document.querySelectorAll('.tab-btn')[1].classList.add('active');
-        document.getElementById('tab-pesquisar').classList.add('active');
-      }
-    }
-
-    function selectOption(type, value, element) {
-      const group = document.getElementById(`${type}-group`);
-      group.querySelectorAll('.btn-option').forEach(el => el.classList.remove('selected'));
-      element.classList.add('selected');
-
-      if (type === 'categoria') selectedCategoria = value;
-      if (type === 'status') selectedStatus = value;
-    }
-
-    document.getElementById('ocorrenciaForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const payload = {
-        tipo: 'NOVA_OCORRENCIA',
-        maquina: document.getElementById('maquina').value,
-        categoria: selectedCategoria,
-        status: selectedStatus,
-        descricao: document.getElementById('descricao').value,
-        enviarGrupo: document.getElementById('enviarGrupo').checked
-      };
-
-      tg.sendData(JSON.stringify(payload));
-      tg.close();
+    // BOTÃO VOLTAR NATIVO DO TELEGRAM
+    tg.BackButton.show();
+    tg.BackButton.onClick(function() {
+      window.location.href = 'index.html';
     });
 
-    function executarPesquisa() {
-      const termo = document.getElementById('campo-busca').value;
-      if (!termo) return;
+    // Aplica preferências visuais
+    const fontScale = localStorage.getItem('userFontScale') || 1.1;
+    const theme = localStorage.getItem('userTheme') || 'light';
+    document.documentElement.style.setProperty('--font-scale', fontScale);
+    if (theme === 'black') document.body.classList.add('theme-black');
 
-      const payload = {
-        tipo: 'PESQUISAR',
-        termo: termo
+    // Envio do Formulário
+    document.getElementById('formOcorrencia').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const dados = {
+        maquina: document.getElementById('maquina').value,
+        categoria: document.getElementById('categoria').value,
+        status: document.getElementById('status').value,
+        descricao: document.getElementById('descricao').value,
+        enviarGrupo: true
       };
-      
-      tg.sendData(JSON.stringify(payload));
-      tg.close();
-    }
+
+      tg.sendData(JSON.stringify(dados));
+    });
   </script>
 </body>
 </html>

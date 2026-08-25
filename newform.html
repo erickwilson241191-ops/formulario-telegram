@@ -99,10 +99,6 @@
       margin-top: 10px;
     }
 
-    .btn-submit:active {
-      opacity: 0.8;
-    }
-
     .btn-submit:disabled {
       background-color: #cccccc;
       cursor: not-allowed;
@@ -115,13 +111,11 @@
 
   <form id="formOcorrencia">
     
-    <!-- TÉCNICO RESPONSÁVEL -->
     <div class="form-group">
       <label for="tecnico">👤 Técnico Responsável:</label>
       <input type="text" id="tecnico" readonly placeholder="Carregando nome...">
     </div>
 
-    <!-- MÁQUINA E HISTÓRICO -->
     <div class="form-group">
       <label for="maquina">🏭 Máquina / Equipamento:</label>
       <select id="maquina" onchange="buscarHistoricoMaquina(this.value)" required>
@@ -136,13 +130,11 @@
       </select>
     </div>
 
-    <!-- HISTÓRICO RECENTE -->
     <div id="historicoBox" class="historico-box">
       💡 <strong>Última solução registrada:</strong>
       <div id="historicoTexto">Carregando...</div>
     </div>
 
-    <!-- CATEGORIA -->
     <div class="form-group">
       <label for="categoria">🏷️ Categoria:</label>
       <select id="categoria" required>
@@ -153,7 +145,6 @@
       </select>
     </div>
 
-    <!-- STATUS -->
     <div class="form-group">
       <label for="status">🚨 Status Inicial:</label>
       <select id="status" required>
@@ -163,13 +154,11 @@
       </select>
     </div>
 
-    <!-- DESCRIÇÃO -->
     <div class="form-group">
       <label for="descricao">📝 Descrição do Problema/Serviço:</label>
       <textarea id="descricao" placeholder="Descreva os detalhes aqui..." required></textarea>
     </div>
 
-    <!-- UPLOAD DE FOTO -->
     <div class="form-group">
       <label for="foto">📷 Anexar Foto (Opcional):</label>
       <input type="file" id="foto" accept="image/*">
@@ -182,13 +171,17 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // BOTÃO VOLTAR NATIVO
-    tg.BackButton.show();
-    tg.BackButton.onClick(function() {
-      window.location.href = 'index.html';
-    });
+    const ID_PASTA_DRIVE = '141y5EbSA_F4EKWzYtofoz2kaELqpNOFt';
+    // Substitua pela sua chave API criada no Google Cloud Console:
+    const API_KEY_GOOGLE = 'SEU_API_KEY_AQUI'; 
 
-    // 1. CARREGAR NOME DO TÉCNICO AUTOMATICAMENTE
+    if (tg.BackButton) {
+      tg.BackButton.show();
+      tg.BackButton.onClick(function() {
+        window.location.href = 'index.html';
+      });
+    }
+
     function carregarNomeTecnico() {
       const urlParams = new URLSearchParams(window.location.search);
       const nomeUrl = urlParams.get('tecnico') || urlParams.get('nome');
@@ -201,7 +194,6 @@
 
       const nomeCustom = localStorage.getItem('userCustomName');
       const nomeSalvo = localStorage.getItem('userTelegramName');
-
       const nomeFinal = nomeCustom || nomeUrl || nomeTelegram || nomeSalvo || 'Técnico';
       
       const campoTecnico = document.getElementById('tecnico');
@@ -211,7 +203,6 @@
       }
     }
 
-    // 2. BUSCA DO HISTÓRICO DA MÁQUINA
     const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
     const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
 
@@ -239,7 +230,31 @@
       } catch (e) { box.style.display = 'none'; }
     }
 
-    // Aplica preferências visuais
+    // UPLOAD DA FOTO DIRETO NO GOOGLE DRIVE VIA API
+    async function fazerUploadParaDrive(file) {
+      const metadata = {
+        name: `Ocorrencia_${Date.now()}_${file.name}`,
+        mimeType: file.type,
+        parents: [ID_PASTA_DRIVE]
+      };
+
+      const formData = new FormData();
+      formData.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+      formData.append('file', file);
+
+      const response = await fetch(`https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&key=${API_KEY_GOOGLE}`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao enviar imagem para o Drive');
+      }
+
+      const resData = await response.json();
+      return `https://drive.google.com/file/d/${resData.id}/view`;
+    }
+
     const fontScale = localStorage.getItem('userFontScale') || 1.1;
     const theme = localStorage.getItem('userTheme') || 'light';
     document.documentElement.style.setProperty('--font-scale', fontScale);
@@ -247,42 +262,38 @@
 
     carregarNomeTecnico();
 
-    // 3. ENVIO DOS DADOS AO TELEGRAM (CORRIGIDO)
     document.getElementById('formOcorrencia').addEventListener('submit', async function(e) {
       e.preventDefault();
 
       const btn = document.getElementById('btnSalvar');
       btn.disabled = true;
-      btn.innerText = 'Enviando...';
+      btn.innerText = 'Enviando foto...';
 
       const fileInput = document.getElementById('foto');
-      let base64Image = '';
-
-      if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        base64Image = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result.split(',')[1]);
-          reader.readAsDataURL(file);
-        });
-      }
-
-      const dados = {
-        acao: 'CRIAR_OCORRENCIA',
-        tecnico: document.getElementById('tecnico').value,
-        maquina: document.getElementById('maquina').value,
-        categoria: document.getElementById('categoria').value,
-        status: document.getElementById('status').value,
-        descricao: document.getElementById('descricao').value,
-        imagemBase64: base64Image,
-        enviarGrupo: true
-      };
+      let urlFotoDrive = 'Sem arquivo';
 
       try {
+        if (fileInput.files.length > 0) {
+          urlFotoDrive = await fazerUploadParaDrive(fileInput.files[0]);
+        }
+
+        btn.innerText = 'Salvando registro...';
+
+        const dados = {
+          acao: 'CRIAR_OCORRENCIA',
+          tecnico: document.getElementById('tecnico').value,
+          maquina: document.getElementById('maquina').value,
+          categoria: document.getElementById('categoria').value,
+          status: document.getElementById('status').value,
+          descricao: document.getElementById('descricao').value,
+          urlFoto: urlFotoDrive,
+          enviarGrupo: true
+        };
+
         tg.sendData(JSON.stringify(dados));
-        tg.close(); // Garante o fechamento da janela após o envio
+        tg.close();
       } catch (err) {
-        alert("Erro ao enviar dados. Abra o formulário via teclado do Telegram.");
+        alert("Erro no upload do arquivo. Verifique sua conexão ou se a API Key do Google é válida.");
         btn.disabled = false;
         btn.innerText = '🚀 Enviar Ocorrência';
       }

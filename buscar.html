@@ -51,159 +51,47 @@
     }
     
     /* BOTÕES DE FILTRO (CHIPS) */
-    .filter-group {
-      margin-top: 8px;
-    }
-
-    .filter-label {
-      font-size: 11px;
-      font-weight: bold;
-      color: #777;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-    }
-
-    .filter-chips {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      scrollbar-width: none;
-    }
-
-    .filter-chips::-webkit-scrollbar {
-      display: none;
-    }
-
-    .chip {
-      background: var(--secondary-bg);
-      border: 1px solid #ddd;
-      border-radius: 16px;
-      padding: 5px 12px;
-      font-size: 12px;
-      white-space: nowrap;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-
-    .chip.active {
-      background-color: var(--primary-color);
-      color: #fff;
-      border-color: var(--primary-color);
-    }
+    .filter-group { margin-top: 8px; }
+    .filter-label { font-size: 11px; font-weight: bold; color: #777; margin-bottom: 4px; text-transform: uppercase; }
+    .filter-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .filter-chips::-webkit-scrollbar { display: none; }
+    .chip { background: var(--secondary-bg); border: 1px solid #ddd; border-radius: 16px; padding: 5px 12px; font-size: 12px; white-space: nowrap; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+    .chip.active { background-color: var(--primary-color); color: #fff; border-color: var(--primary-color); }
 
     /* CARD EXPANSÍVEL */
-    .card {
-      background: var(--secondary-bg);
-      border-left: 5px solid var(--primary-color);
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      cursor: pointer;
-      transition: all 0.2s ease-in-out;
-    }
-
-    .card:active {
-      transform: scale(0.98);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: bold;
-      font-size: 14px;
-    }
-
+    .card { background: var(--secondary-bg); border-left: 5px solid var(--primary-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.2s ease-in-out; }
+    .card:active { transform: scale(0.98); }
+    .card-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 14px; }
     .card-id { color: var(--primary-color); }
-    
-    .card-meta {
-      font-size: 12px;
-      color: #666;
-      margin-top: 4px;
-      font-weight: 500;
-    }
-
-    .card-preview {
-      font-size: 13px;
-      margin-top: 6px;
-      color: #333;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .card-details {
-      display: none;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px dashed #ccc;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .card.expanded .card-details {
-      display: block;
-    }
-
-    .card.expanded .card-preview {
-      display: none;
-    }
-    
+    .card-meta { font-size: 12px; color: #666; margin-top: 4px; font-weight: 500; }
+    .card-preview { font-size: 13px; margin-top: 6px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-details { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; font-size: 13px; line-height: 1.5; }
+    .card.expanded .card-details { display: block; }
+    .card.expanded .card-preview { display: none; }
     .detail-item { margin-bottom: 6px; }
 
-    .badge {
-      display: inline-block;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: bold;
-    }
-
+    .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
     .status-aberto { background: #ffebee; color: #c62828; }
     .status-andamento { background: #fffde7; color: #f57f17; }
     .status-concluido { background: #e8f5e9; color: #2e7d32; }
     .status-cancelado { background: #eee; color: #616161; }
+
+    /* CONTROLE DE MUDANÇA DE STATUS */
+    .status-changer { margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.04); border-radius: 6px; border: 1px solid #ddd; }
+    .status-select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; margin-top: 6px; font-weight: bold; font-size: 14px; background: #fff; }
     
-    .midia-btn {
-      display: block;
-      width: 100%;
-      text-align: center;
-      background-color: var(--primary-color);
-      color: #fff;
-      padding: 8px 0;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: bold;
-      margin-top: 10px;
-      box-sizing: border-box;
-    }
-
-    .click-hint {
-      font-size: 11px;
-      color: #888;
-      text-align: right;
-      margin-top: 6px;
-    }
-
-    #status-msg {
-      text-align: center;
-      padding: 20px;
-      font-weight: bold;
-      color: #777;
-    }
+    .midia-btn { display: block; width: 100%; text-align: center; background-color: var(--primary-color); color: #fff; padding: 8px 0; border-radius: 6px; text-decoration: none; font-weight: bold; margin-top: 10px; box-sizing: border-box; }
+    .click-hint { font-size: 11px; color: #888; text-align: right; margin-top: 6px; }
+    #status-msg { text-align: center; padding: 20px; font-weight: bold; color: #777; }
   </style>
 </head>
 <body>
 
-  <h2>🔎 Consultar Ocorrências</h2>
+  <h2>🔎 Consultar & Gerenciar</h2>
 
   <div class="search-container">
     <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Digitar palavra-chave...">
 
-    <!-- FILTRO POR STATUS -->
     <div class="filter-group">
       <div class="filter-label">Status:</div>
       <div class="filter-chips" id="statusChips">
@@ -214,7 +102,6 @@
       </div>
     </div>
 
-    <!-- FILTRO POR CATEGORIA -->
     <div class="filter-group">
       <div class="filter-label">Categoria:</div>
       <div class="filter-chips">
@@ -231,15 +118,10 @@
   <div id="listaOcorrencias"></div>
 
   <script>
-    // Inicialização do WebApp do Telegram
     const tg = window.Telegram.WebApp;
     tg.expand();
-
-    // Ativação do Botão Voltar Nativo no topo do Telegram
     tg.BackButton.show();
-    tg.BackButton.onClick(function() {
-      window.location.href = 'index.html';
-    });
+    tg.BackButton.onClick(function() { window.location.href = 'index.html'; });
 
     const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
     const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
@@ -248,14 +130,11 @@
     let filtroStatusAtivo = 'TODOS';
     let filtroCategoriaAtivo = 'TODOS';
 
-    // Checa se veio um parâmetro pela URL (ex: buscar.html?status=Aberto)
     function verificarFiltroURL() {
       const urlParams = new URLSearchParams(window.location.search);
       const statusParam = urlParams.get('status');
-
       if (statusParam) {
         filtroStatusAtivo = statusParam;
-        
         const chips = document.querySelectorAll('#statusChips .chip');
         chips.forEach(chip => {
           chip.classList.remove('active');
@@ -273,9 +152,7 @@
         const [dia, mes, ano] = data.split('/');
         const [horas, minutos] = hora ? hora.split(':') : [0, 0];
         return new Date(ano, mes - 1, dia, horas, minutos);
-      } catch (e) {
-        return new Date(0);
-      }
+      } catch (e) { return new Date(0); }
     }
 
     async function carregarOcorrencias() {
@@ -308,12 +185,7 @@
           };
         });
 
-        todasOcorrencias.sort((a, b) => {
-          const dataA = parseDataHora(a.data);
-          const dataB = parseDataHora(b.data);
-          return dataB - dataA;
-        });
-
+        todasOcorrencias.sort((a, b) => parseDataHora(b.data) - parseDataHora(a.data));
         statusDiv.style.display = 'none';
 
         verificarFiltroURL();
@@ -321,7 +193,7 @@
 
       } catch (error) {
         console.error('Erro:', error);
-        statusDiv.innerHTML = `<span style="color:red;">❌ Erro ao carregar dados.<br>Verifique se a planilha está compartilhada como pública ("Qualquer pessoa com o link").</span>`;
+        statusDiv.innerHTML = `<span style="color:red;">❌ Erro ao carregar dados.</span>`;
       }
     }
 
@@ -329,16 +201,13 @@
       const grupo = elemento.parentElement;
       grupo.querySelectorAll('.chip').forEach(chip => chip.classList.remove('active'));
       elemento.classList.add('active');
-
       if (tipo === 'status') filtroStatusAtivo = valor;
       if (tipo === 'categoria') filtroCategoriaAtivo = valor;
-
       aplicarFiltros();
     }
 
     function aplicarFiltros() {
       const termo = document.getElementById('searchInput').value.toLowerCase();
-
       const filtradas = todasOcorrencias.filter(item => {
         const bateuTexto = (
           String(item.id).toLowerCase().includes(termo) ||
@@ -347,17 +216,20 @@
           String(item.tecnico).toLowerCase().includes(termo) ||
           String(item.data).toLowerCase().includes(termo)
         );
-
-        const bateuStatus = (filtroStatusAtivo === 'TODOS') || 
-          String(item.status).toLowerCase().includes(filtroStatusAtivo.toLowerCase());
-
-        const bateuCategoria = (filtroCategoriaAtivo === 'TODOS') || 
-          String(item.categoria).toLowerCase().includes(filtroCategoriaAtivo.toLowerCase());
-
+        const bateuStatus = (filtroStatusAtivo === 'TODOS') || String(item.status).toLowerCase().includes(filtroStatusAtivo.toLowerCase());
+        const bateuCategoria = (filtroCategoriaAtivo === 'TODOS') || String(item.categoria).toLowerCase().includes(filtroCategoriaAtivo.toLowerCase());
+        
         return bateuTexto && bateuStatus && bateuCategoria;
       });
-
       renderizarLista(filtradas);
+    }
+
+    function atualizarStatusServidor(idOcorrencia, novoStatus) {
+      tg.sendData(JSON.stringify({
+        acao: 'ATUALIZAR_STATUS',
+        id: idOcorrencia,
+        novoStatus: novoStatus
+      }));
     }
 
     function renderizarLista(lista) {
@@ -372,7 +244,13 @@
       lista.forEach(item => {
         const card = document.createElement('div');
         card.className = 'card';
-        card.onclick = () => card.classList.toggle('expanded');
+        
+        // Evita abrir/fechar o card quando clica no dropdown de status
+        card.onclick = (e) => {
+          if (!e.target.classList.contains('status-select')) {
+            card.classList.toggle('expanded');
+          }
+        };
 
         let statusClass = 'status-aberto';
         const st = String(item.status);
@@ -385,6 +263,11 @@
           btnMidia = `<a href="${item.midia}" target="_blank" class="midia-btn" onclick="event.stopPropagation();">🖼️ Abrir Mídia Anexada</a>`;
         }
 
+        // Dropdown pré-selecionado com o status atual
+        const optAberto = st.includes('Aberto') ? 'selected' : '';
+        const optAndamento = st.includes('Andamento') ? 'selected' : '';
+        const optConcluido = st.includes('Concluído') ? 'selected' : '';
+
         card.innerHTML = `
           <div class="card-header">
             <span class="card-id">#${item.id} - ${item.maquina}</span>
@@ -392,15 +275,23 @@
           </div>
           
           <div class="card-meta">📅 ${item.data}</div>
-
           <div class="card-preview">📝 ${item.descricao}</div>
           <div class="click-hint">👇 Toque para ver detalhes</div>
 
           <div class="card-details">
             <div class="detail-item"><strong>🏷️ Categoria:</strong> ${item.categoria}</div>
-            <div class="detail-item"><strong>📝 Descrição Completa:</strong><br>${item.descricao}</div>
             <div class="detail-item"><strong>👨‍🔧 Técnico Responsável:</strong> ${item.tecnico}</div>
-            <div class="detail-item"><strong>📅 Data/Hora:</strong> ${item.data}</div>
+            <div class="detail-item"><strong>📝 Descrição Completa:</strong><br>${item.descricao}</div>
+            
+            <div class="status-changer" onclick="event.stopPropagation();">
+              <label><strong>🔄 Atualizar Status:</strong></label>
+              <select class="status-select" onchange="atualizarStatusServidor('${item.id}', this.value)">
+                <option value="🔴 Aberto" ${optAberto}>🔴 Aberto</option>
+                <option value="🟡 Em Andamento" ${optAndamento}>🟡 Em Andamento</option>
+                <option value="🟢 Concluído" ${optConcluido}>🟢 Concluído</option>
+              </select>
+            </div>
+
             ${btnMidia}
           </div>
         `;

@@ -252,52 +252,30 @@
   tg.expand();
 
   function carregarUsuario() {
-    // Busca dados no Telegram WebApp
-    const user = tg.initDataUnsafe?.user;
-    
-    let nomeCapturado = '';
+  // 1. Tenta pegar a tag 'tecnico' ou 'nome' da URL enviada pelo Bot
+  const urlParams = new URLSearchParams(window.location.search);
+  const nomeUrl = urlParams.get('tecnico') || urlParams.get('nome');
+  
+  // 2. Tenta pegar do Telegram WebApp SDK (se disponível)
+  const userTelegram = window.Telegram.WebApp.initDataUnsafe?.user?.first_name;
+  
+  // 3. Tenta pegar nome editado no aplicativo (se o usuário mudou nas configs)
+  const nomeConfig = localStorage.getItem('userCustomName');
 
-    // A. Monta o nome pelo Telegram WebApp (Primeiro + Sobrenome)
-    if (user && user.first_name) {
-      const primeiro = user.first_name || '';
-      const sobrenome = user.last_name || '';
-      nomeCapturado = `${primeiro} ${sobrenome}`.trim();
-    }
+  // Define a prioridade do nome a ser exibido
+  const nomeFinal = nomeConfig || nomeUrl || userTelegram || 'Técnico';
 
-    // B. Se não achou no Telegram, tenta pegar da URL (ex: index.html?tecnico=Carlos)
-    if (!nomeCapturado) {
-      const urlParams = new URLSearchParams(window.location.search);
-      nomeCapturado = urlParams.get('tecnico') || urlParams.get('nome') || '';
-    }
-
-    // C. Se capturou um nome válido, salva no cache local para uso futuro
-    if (nomeCapturado) {
-      localStorage.setItem('userTelegramName', nomeCapturado);
-    }
-
-    // D. Dfina a prioridade de exibição:
-    // 1º Nome editado nas Configurações
-    // 2º Nome recém-capturado do Telegram/URL
-    // 3º Nome salvo em cache de acessos anteriores
-    // 4º Nome padrão 'Técnico'
-    const nomeSalvoConfig = localStorage.getItem('userCustomName');
-    const nomeCache = localStorage.getItem('userTelegramName');
-
-    const nomeFinal = nomeSalvoConfig || nomeCapturado || nomeCache || 'Técnico';
-
-    // Atualiza o elemento no HTML
-    const elementoName = document.getElementById('userName');
-    if (elementoName) {
-      elementoName.innerText = `Olá, ${nomeFinal}! 👋`;
-    }
+  // Se veio um nome válido da URL ou Telegram, salva em cache local
+  if (nomeUrl || userTelegram) {
+    localStorage.setItem('userTelegramName', nomeUrl || userTelegram);
   }
 
-  // 2. Aguarda o Telegram carregar 100% os dados do usuário antes de disparar a função
-  tg.ready();
-  
-  // Executa imediatamente e agenda uma verificação extra após 300ms (para conexões lentas)
-  carregarUsuario();
-  setTimeout(carregarUsuario, 300);
+  // Atualiza o texto na tela inicial
+  document.getElementById('userName').innerText = `Olá, ${nomeFinal}! 👋`;
+}
+
+// Executa a função imediatamente ao abrir a página
+carregarUsuario();
 
   // Aplica as preferências visuais de fonte e tema
   function aplicarPreferencias() {

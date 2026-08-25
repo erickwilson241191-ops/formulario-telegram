@@ -444,6 +444,14 @@
     }
 
     carregarOcorrencias();
+    // Ativa o botão de voltar nativo no topo da tela do Telegram
+const tg = window.Telegram.WebApp;
+tg.expand();
+tg.BackButton.show();
+tg.BackButton.onClick(function() {
+  window.location.href = 'index.html';
+});
+    
   </script>
 </body>
 </html>

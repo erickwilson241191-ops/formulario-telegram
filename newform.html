@@ -52,7 +52,7 @@
       font-size: calc(14px * var(--font-scale));
     }
 
-    select, textarea, input[type="text"] {
+    select, textarea, input[type="text"], input[type="file"] {
       width: 100%;
       padding: 12px;
       border: 2px solid var(--card-border);
@@ -64,9 +64,27 @@
       font-weight: 600;
     }
 
+    input[readonly] {
+      opacity: 0.75;
+      cursor: not-allowed;
+    }
+
     textarea {
       resize: vertical;
       min-height: 100px;
+    }
+
+    /* Caixa do Histórico da Máquina */
+    .historico-box {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 10px;
+      margin-top: -8px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+      font-size: calc(13px * var(--font-scale));
+      display: none;
+      color: #0d47a1;
     }
 
     .btn-submit {
@@ -85,6 +103,11 @@
     .btn-submit:active {
       opacity: 0.8;
     }
+
+    .btn-submit:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -93,10 +116,16 @@
 
   <form id="formOcorrencia">
     
-    <!-- SELEÇÃO DE MÁQUINA DIRETA (SEM ABA DE PESQUISA) -->
+    <!-- TÉCNICO RESPONSÁVEL (AUTO) -->
+    <div class="form-group">
+      <label for="tecnico">👤 Técnico Responsável:</label>
+      <input type="text" id="tecnico" readonly placeholder="Carregando nome...">
+    </div>
+
+    <!-- MÁQUINA E HISTÓRICO -->
     <div class="form-group">
       <label for="maquina">🏭 Máquina / Equipamento:</label>
-      <select id="maquina" required>
+      <select id="maquina" onchange="buscarHistoricoMaquina(this.value)" required>
         <option value="" disabled selected>Selecione a máquina...</option>
         <option value="Torno CNC">Torno CNC</option>
         <option value="Fresadora">Fresadora</option>
@@ -106,6 +135,12 @@
         <option value="Injetora">Injetora</option>
         <option value="Outros / Geral">Outros / Geral</option>
       </select>
+    </div>
+
+    <!-- HISTÓRICO RECENTE -->
+    <div id="historicoBox" class="historico-box">
+      💡 <strong>Última solução registrada:</strong>
+      <div id="historicoTexto">Carregando...</div>
     </div>
 
     <!-- CATEGORIA -->
@@ -135,18 +170,75 @@
       <textarea id="descricao" placeholder="Descreva os detalhes aqui..." required></textarea>
     </div>
 
-    <button type="submit" class="btn-submit">🚀 Enviar Ocorrência</button>
+    <!-- UPLOAD DE FOTO -->
+    <div class="form-group">
+      <label for="foto">📷 Anexar Foto (Opcional):</label>
+      <input type="file" id="foto" accept="image/*">
+    </div>
+
+    <button type="submit" id="btnSalvar" class="btn-submit">🚀 Enviar Ocorrência</button>
   </form>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // BOTÃO VOLTAR NATIVO DO TELEGRAM
+    // BOTÃO VOLTAR NATIVO
     tg.BackButton.show();
     tg.BackButton.onClick(function() {
       window.location.href = 'index.html';
     });
+
+    // 1. CARREGAR NOME DO TÉCNICO AUTOMATICAMENTE
+    function carregarNomeTecnico() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const nomeUrl = urlParams.get('tecnico') || urlParams.get('nome');
+      const userTelegram = tg.initDataUnsafe?.user;
+      
+      let nomeTelegram = '';
+      if (userTelegram) {
+        nomeTelegram = `${userTelegram.first_name || ''} ${userTelegram.last_name || ''}`.trim() || userTelegram.username;
+      }
+
+      const nomeCustom = localStorage.getItem('userCustomName');
+      const nomeSalvo = localStorage.getItem('userTelegramName');
+
+      const nomeFinal = nomeCustom || nomeUrl || nomeTelegram || nomeSalvo || 'Técnico';
+      
+      const campoTecnico = document.getElementById('tecnico');
+      campoTecnico.value = nomeFinal;
+      if (nomeFinal === 'Técnico') {
+        campoTecnico.removeAttribute('readonly');
+      }
+    }
+
+    // 2. BUSCA DO HISTÓRICO DA MÁQUINA
+    const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
+    const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
+
+    async function buscarHistoricoMaquina(maquina) {
+      const box = document.getElementById('historicoBox');
+      const txt = document.getElementById('historicoTexto');
+      if (!maquina) { box.style.display = 'none'; return; }
+
+      try {
+        const response = await fetch(URL_GVIZ);
+        const text = await response.text();
+        const json = JSON.parse(text.substring(47, text.length - 2));
+        const rows = json.table.rows;
+
+        const historico = rows
+          .map(r => ({ maquina: r.c[3]?.v, desc: r.c[5]?.v, status: r.c[6]?.v }))
+          .filter(r => r.maquina === maquina && r.status && String(r.status).includes('Concluído'));
+
+        if (historico.length > 0) {
+          txt.innerText = historico[historico.length - 1].desc;
+          box.style.display = 'block';
+        } else {
+          box.style.display = 'none';
+        }
+      } catch (e) { box.style.display = 'none'; }
+    }
 
     // Aplica preferências visuais
     const fontScale = localStorage.getItem('userFontScale') || 1.1;
@@ -154,15 +246,36 @@
     document.documentElement.style.setProperty('--font-scale', fontScale);
     if (theme === 'black') document.body.classList.add('theme-black');
 
-    // Envio do Formulário
-    document.getElementById('formOcorrencia').addEventListener('submit', function(e) {
+    carregarNomeTecnico();
+
+    // 3. ENVIO COM FOTO E DADOS COMPLETOS
+    document.getElementById('formOcorrencia').addEventListener('submit', async function(e) {
       e.preventDefault();
 
+      const btn = document.getElementById('btnSalvar');
+      btn.disabled = true;
+      btn.innerText = 'Enviando...';
+
+      const fileInput = document.getElementById('foto');
+      let base64Image = '';
+
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        base64Image = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result.split(',')[1]);
+          reader.readAsDataURL(file);
+        });
+      }
+
       const dados = {
+        acao: 'CRIAR_OCORRENCIA',
+        tecnico: document.getElementById('tecnico').value,
         maquina: document.getElementById('maquina').value,
         categoria: document.getElementById('categoria').value,
         status: document.getElementById('status').value,
         descricao: document.getElementById('descricao').value,
+        imagemBase64: base64Image,
         enviarGrupo: true
       };
 

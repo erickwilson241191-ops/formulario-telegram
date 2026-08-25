@@ -52,7 +52,7 @@
       font-size: calc(14px * var(--font-scale));
     }
 
-    select, textarea, input[type="text"], input[type="file"] {
+    select, textarea, input[type="text"] {
       width: 100%;
       padding: 12px;
       border: 2px solid var(--card-border);
@@ -159,20 +159,12 @@
       <textarea id="descricao" placeholder="Descreva os detalhes aqui..." required></textarea>
     </div>
 
-    <div class="form-group">
-      <label for="foto">📷 Anexar Foto (Opcional):</label>
-      <input type="file" id="foto" accept="image/*">
-    </div>
-
     <button type="submit" id="btnSalvar" class="btn-submit">🚀 Enviar Ocorrência</button>
   </form>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-
-    // Client-ID gratuito do Imgur para upload direto sem backend
-    const IMGUR_CLIENT_ID = '3b89e378ef86487'; 
 
     if (tg.BackButton) {
       tg.BackButton.show();
@@ -229,26 +221,6 @@
       } catch (e) { box.style.display = 'none'; }
     }
 
-    async function uploadFotoImgur(file) {
-      const formData = new FormData();
-      formData.append('image', file);
-
-      const response = await fetch('https://api.imgur.com/3/image', {
-        method: 'POST',
-        headers: {
-          Authorization: `Client-ID ${IMGUR_CLIENT_ID}`
-        },
-        body: formData
-      });
-
-      const resData = await response.json();
-      if (resData.success) {
-        return resData.data.link;
-      } else {
-        throw new Error('Erro ao enviar imagem ao Imgur');
-      }
-    }
-
     const fontScale = localStorage.getItem('userFontScale') || 1.1;
     const theme = localStorage.getItem('userTheme') || 'light';
     document.documentElement.style.setProperty('--font-scale', fontScale);
@@ -256,41 +228,25 @@
 
     carregarNomeTecnico();
 
-    document.getElementById('formOcorrencia').addEventListener('submit', async function(e) {
+    document.getElementById('formOcorrencia').addEventListener('submit', function(e) {
       e.preventDefault();
 
       const btn = document.getElementById('btnSalvar');
       btn.disabled = true;
-      btn.innerText = 'Enviando imagem...';
+      btn.innerText = 'Enviando...';
 
-      const fileInput = document.getElementById('foto');
-      let urlFoto = 'Sem arquivo';
+      const dados = {
+        acao: 'CRIAR_OCORRENCIA',
+        tecnico: document.getElementById('tecnico').value,
+        maquina: document.getElementById('maquina').value,
+        categoria: document.getElementById('categoria').value,
+        status: document.getElementById('status').value,
+        descricao: document.getElementById('descricao').value,
+        enviarGrupo: true
+      };
 
-      try {
-        if (fileInput.files.length > 0) {
-          urlFoto = await uploadFotoImgur(fileInput.files[0]);
-        }
-
-        btn.innerText = 'Salvando registro...';
-
-        const dados = {
-          acao: 'CRIAR_OCORRENCIA',
-          tecnico: document.getElementById('tecnico').value,
-          maquina: document.getElementById('maquina').value,
-          categoria: document.getElementById('categoria').value,
-          status: document.getElementById('status').value,
-          descricao: document.getElementById('descricao').value,
-          urlFoto: urlFoto,
-          enviarGrupo: true
-        };
-
-        tg.sendData(JSON.stringify(dados));
-        tg.close();
-      } catch (err) {
-        alert("Erro ao enviar imagem. Verifique sua conexão e tente novamente.");
-        btn.disabled = false;
-        btn.innerText = '🚀 Enviar Ocorrência';
-      }
+      tg.sendData(JSON.stringify(dados));
+      tg.close();
     });
   </script>
 </body>

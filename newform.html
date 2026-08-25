@@ -7,166 +7,128 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --primary-color: #006699;
-      --bg-color: #ffffff;
-      --text-color: #111111;
-      --secondary-bg: #eef2f5;
-      --card-border: #cccccc;
-      --font-scale: 1.1;
+      --primary-color: #0088cc;
+      --bg-color: var(--tg-theme-bg-color, #ffffff);
+      --text-color: var(--tg-theme-text-color, #222222);
+      --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5);
     }
-
-    body.theme-black {
-      --primary-color: #33b5e5;
-      --bg-color: #000000;
-      --text-color: #ffffff;
-      --secondary-bg: #121212;
-      --card-border: #333333;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      margin: 0;
-      padding: 16px;
-      box-sizing: border-box;
-      font-size: calc(16px * var(--font-scale));
-    }
-
-    h2 {
-      margin-top: 0;
-      color: var(--primary-color);
-      font-size: calc(20px * var(--font-scale));
-      border-bottom: 2px solid var(--primary-color);
-      padding-bottom: 6px;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 6px;
-      font-size: calc(14px * var(--font-scale));
-    }
-
-    select, textarea, input[type="text"] {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid var(--card-border);
-      border-radius: 10px;
-      background-color: var(--secondary-bg);
-      color: var(--text-color);
-      font-size: calc(15px * var(--font-scale));
-      box-sizing: border-box;
-      font-weight: 600;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-
-    .btn-submit {
-      width: 100%;
-      padding: 16px;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: calc(16px * var(--font-scale));
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .btn-submit:active {
-      opacity: 0.8;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; box-sizing: border-box; }
+    h2 { color: var(--primary-color); margin-top: 0; font-size: 18px; }
+    label { font-weight: bold; font-size: 13px; display: block; margin-top: 12px; margin-bottom: 4px; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: var(--secondary-bg); color: var(--text-color); }
+    textarea { resize: vertical; height: 80px; }
+    
+    /* Sugestão Inteligente */
+    .historico-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 10px; margin-top: 10px; border-radius: 4px; font-size: 12px; display: none; }
+    .historico-box strong { color: #0d47a1; }
+    
+    .btn-submit { width: 100%; background: var(--primary-color); color: white; border: none; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+    .btn-submit:disabled { background: #ccc; }
   </style>
 </head>
 <body>
 
-  <h2>📝 Registrar Nova Ocorrência</h2>
+  <h2>📝 Registrar Ocorrência</h2>
 
   <form id="formOcorrencia">
-    
-    <!-- SELEÇÃO DE MÁQUINA DIRETA (SEM ABA DE PESQUISA) -->
-    <div class="form-group">
-      <label for="maquina">🏭 Máquina / Equipamento:</label>
-      <select id="maquina" required>
-        <option value="" disabled selected>Selecione a máquina...</option>
-        <option value="Torno CNC">Torno CNC</option>
-        <option value="Fresadora">Fresadora</option>
-        <option value="Prensa Hidráulica">Prensa Hidráulica</option>
-        <option value="Compressor de Ar">Compressor de Ar</option>
-        <option value="Esteira Transportadora">Esteira Transportadora</option>
-        <option value="Injetora">Injetora</option>
-        <option value="Outros / Geral">Outros / Geral</option>
-      </select>
+    <label for="tecnico">Técnico Responsável:</label>
+    <input type="text" id="tecnico" required placeholder="Seu nome">
+
+    <label for="maquina">Máquina / Equipamento:</label>
+    <select id="maquina" onchange="buscarHistoricoMaquina(this.value)" required>
+      <option value="">Selecione...</option>
+      <option value="Torno CNC">Torno CNC</option>
+      <option value="Prensa Hidráulica">Prensa Hidráulica</option>
+      <option value="Injetora">Injetora</option>
+      <option value="Compressor">Compressor</option>
+    </select>
+
+    <!-- DICA DO HISTÓRICO -->
+    <div id="historicoBox" class="historico-box">
+      💡 <strong>Última solução nesta máquina:</strong>
+      <div id="historicoTexto">Carregando...</div>
     </div>
 
-    <!-- CATEGORIA -->
-    <div class="form-group">
-      <label for="categoria">🏷️ Categoria:</label>
-      <select id="categoria" required>
-        <option value="Corretiva">🛠️ Corretiva</option>
-        <option value="Preventiva">📅 Preventiva</option>
-        <option value="Melhoria">💡 Melhoria</option>
-        <option value="Pendência">⏳ Pendência</option>
-      </select>
-    </div>
+    <label for="categoria">Categoria:</label>
+    <select id="categoria" required>
+      <option value="Corretiva">🛠️ Corretiva</option>
+      <option value="Preventiva">📅 Preventiva</option>
+      <option value="Melhoria">💡 Melhoria</option>
+      <option value="Pendência">⏳ Pendência</option>
+    </select>
 
-    <!-- STATUS -->
-    <div class="form-group">
-      <label for="status">🚨 Status Inicial:</label>
-      <select id="status" required>
-        <option value="Aberto">🔴 Aberto</option>
-        <option value="Andamento">🟡 Em Andamento</option>
-        <option value="Concluído">🟢 Concluído</option>
-      </select>
-    </div>
+    <label for="descricao">Descrição do Problema:</label>
+    <textarea id="descricao" required placeholder="Detalle o que aconteceu..."></textarea>
 
-    <!-- DESCRIÇÃO -->
-    <div class="form-group">
-      <label for="descricao">📝 Descrição do Problema/Serviço:</label>
-      <textarea id="descricao" placeholder="Descreva os detalhes aqui..." required></textarea>
-    </div>
+    <label for="foto">Anexar Foto:</label>
+    <input type="file" id="foto" accept="image/*">
 
-    <button type="submit" class="btn-submit">🚀 Enviar Ocorrência</button>
+    <button type="submit" id="btnSalvar" class="btn-submit">Enviar Ocorrência</button>
   </form>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-
-    // BOTÃO VOLTAR NATIVO DO TELEGRAM
     tg.BackButton.show();
-    tg.BackButton.onClick(function() {
-      window.location.href = 'index.html';
-    });
+    tg.BackButton.onClick(() => window.location.href = 'index.html');
 
-    // Aplica preferências visuais
-    const fontScale = localStorage.getItem('userFontScale') || 1.1;
-    const theme = localStorage.getItem('userTheme') || 'light';
-    document.documentElement.style.setProperty('--font-scale', fontScale);
-    if (theme === 'black') document.body.classList.add('theme-black');
+    const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
+    const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
 
-    // Envio do Formulário
-    document.getElementById('formOcorrencia').addEventListener('submit', function(e) {
+    async function buscarHistoricoMaquina(maquina) {
+      const box = document.getElementById('historicoBox');
+      const txt = document.getElementById('historicoTexto');
+      if (!maquina) { box.style.display = 'none'; return; }
+
+      try {
+        const response = await fetch(URL_GVIZ);
+        const text = await response.text();
+        const json = JSON.parse(text.substring(47, text.length - 2));
+        const rows = json.table.rows;
+
+        // Procura a última encerrada/concluída para essa máquina
+        const historico = rows
+          .map(r => ({ maquina: r.c[3]?.v, desc: r.c[5]?.v, status: r.c[6]?.v }))
+          .filter(r => r.maquina === maquina && r.status && r.status.includes('Concluído'));
+
+        if (historico.length > 0) {
+          const ultima = historico[historico.length - 1];
+          txt.innerText = ultima.desc;
+          box.style.display = 'block';
+        } else {
+          box.style.display = 'none';
+        }
+      } catch (e) { box.style.display = 'none'; }
+    }
+
+    document.getElementById('formOcorrencia').addEventListener('submit', async function(e) {
       e.preventDefault();
+      const btn = document.getElementById('btnSalvar');
+      btn.disabled = true;
+      btn.innerText = 'Enviando...';
 
-      const dados = {
+      const fileInput = document.getElementById('foto');
+      let base64Image = '';
+
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        base64Image = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result.split(',')[1]);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      const payload = {
+        acao: 'CRIAR_OCORRENCIA',
+        tecnico: document.getElementById('tecnico').value,
         maquina: document.getElementById('maquina').value,
         categoria: document.getElementById('categoria').value,
-        status: document.getElementById('status').value,
         descricao: document.getElementById('descricao').value,
-        enviarGrupo: true
+        imagemBase64: base64Image
       };
 
-      tg.sendData(JSON.stringify(dados));
+      tg.sendData(JSON.stringify(payload));
     });
   </script>
 </body>

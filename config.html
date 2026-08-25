@@ -1,38 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-  <!-- CAMPO PARA SEU NOME -->
-<div class="config-card">
-  <div class="config-title">👤 Seu Nome ou Apelido</div>
-  <div class="config-desc">Como gostaria de ser chamado na tela inicial:</div>
-  <input type="text" id="inputNomeUsuario" placeholder="Digite seu nome..." 
-    style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--card-border); background: var(--bg-color); color: var(--text-color); font-size: 16px; font-weight: bold; box-sizing: border-box; margin-bottom: 10px;">
-  <button class="btn-font" onclick="salvarNomeUsuario()">💾 Salvar Nome</button>
-</div>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Configurações</title>
-  <script 
-  // Carrega o nome atual no campo de entrada
-function carregarNomeSalvo() {
-  const nome = localStorage.getItem('userCustomName') || tg.initDataUnsafe?.user?.first_name || '';
-  document.getElementById('inputNomeUsuario').value = nome;
-}
-
-function salvarNomeUsuario() {
-  const novoNome = document.getElementById('inputNomeUsuario').value.trim();
-  if (novoNome) {
-    localStorage.setItem('userCustomName', novoNome);
-    alert('Nome salvo com sucesso!');
-  } else {
-    localStorage.removeItem('userCustomName');
-    alert('Nome redefinido para o padrão.');
-  }
-}
-
-// Chame a função no final do script:
-carregarNomeSalvo();
-  src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
       --primary-color: #006699;
@@ -59,21 +31,6 @@ carregarNomeSalvo();
       padding: 16px;
       box-sizing: border-box;
       font-size: calc(16px * var(--font-scale));
-    }
-
-    .top-bar {
-      margin-bottom: 15px;
-    }
-
-    .btn-back {
-      background: var(--secondary-bg);
-      border: 2px solid var(--card-border);
-      border-radius: 8px;
-      padding: 8px 16px;
-      font-size: calc(14px * var(--font-scale));
-      font-weight: bold;
-      color: var(--text-color);
-      cursor: pointer;
     }
 
     h2 {
@@ -105,7 +62,6 @@ carregarNomeSalvo();
       margin-bottom: 12px;
     }
 
-    /* BOTÕES DE TEMA */
     .theme-options {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -130,7 +86,6 @@ carregarNomeSalvo();
       box-shadow: 0 0 6px var(--primary-color);
     }
 
-    /* CONTROLE DE FONTE */
     .font-controls {
       display: flex;
       gap: 10px;
@@ -151,10 +106,6 @@ carregarNomeSalvo();
   </style>
 </head>
 <body>
-
-  <div class="top-bar">
-    <button class="btn-back" onclick="voltarPagina()">⬅️ Voltar</button>
-  </div>
 
   <h2>⚙️ Configurações de Acessibilidade</h2>
 
@@ -181,6 +132,12 @@ carregarNomeSalvo();
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
+
+    // BOTÃO VOLTAR NATIVO DO TELEGRAM
+    tg.BackButton.show();
+    tg.BackButton.onClick(function() {
+      window.location.href = 'index.html';
+    });
 
     let fontScale = parseFloat(localStorage.getItem('userFontScale')) || 1.1;
     let currentTheme = localStorage.getItem('userTheme') || 'light';
@@ -209,10 +166,6 @@ carregarNomeSalvo();
       fontScale = Math.min(Math.max(fontScale + delta, 0.9), 1.5);
       localStorage.setItem('userFontScale', fontScale);
       aplicarPreferencias();
-    }
-
-    function voltarPagina() {
-      window.location.href = 'index.html';
     }
 
     aplicarPreferencias();

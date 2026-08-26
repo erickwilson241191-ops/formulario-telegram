@@ -66,7 +66,7 @@
       font-size: calc(14px * var(--font-scale));
     }
 
-    select, textarea, input[type="text"], input[type="file"] {
+    select, textarea, input[type="text"] {
       width: 100%;
       padding: 12px;
       border: 2px solid var(--card-border);
@@ -76,10 +76,6 @@
       font-size: calc(15px * var(--font-scale));
       box-sizing: border-box;
       font-weight: 600;
-    }
-
-    input[type="file"] {
-      padding: 8px;
     }
 
     input[readonly] {
@@ -345,12 +341,6 @@
       <textarea id="descricao" placeholder="Descreva os detalhes aqui..." required></textarea>
     </div>
 
-    <!-- CAMPO ADICIONADO PARA FOTO/VÍDEO -->
-    <div class="form-group">
-      <label for="midia">📷 Anexar Foto ou Vídeo (Opcional):</label>
-      <input type="file" id="midia" accept="image/*,video/*">
-    </div>
-
     <button type="submit" id="btnSalvar" class="btn-submit">🚀 Enviar Ocorrência</button>
   </form>
 
@@ -474,25 +464,6 @@
       }
     }
 
-    // Função de upload usando Imgbb
-    async function uploadMidia(file) {
-      const apiKey = '3b8da461ffef6bb425c28bb2bdaedec5'; // Chave gratuita Imgbb de exemplo
-      const formData = new FormData();
-      formData.append('image', file);
-
-      const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
-        method: 'POST',
-        body: formData
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        return data.data.url;
-      } else {
-        throw new Error('Falha ao subir imagem.');
-      }
-    }
-
     const fontScale = localStorage.getItem('userFontScale') || 1.1;
     const theme = localStorage.getItem('userTheme') || 'light';
     document.documentElement.style.setProperty('--font-scale', fontScale);
@@ -500,28 +471,11 @@
 
     carregarNomeTecnico();
 
-    document.getElementById('formOcorrencia').addEventListener('submit', async function(e) {
+    document.getElementById('formOcorrencia').addEventListener('submit', function(e) {
       e.preventDefault();
 
       const btn = document.getElementById('btnSalvar');
       btn.disabled = true;
-      btn.innerText = 'Enviando mídia...';
-
-      let mediaUrl = '';
-      const inputMidia = document.getElementById('midia');
-
-      // Se houver arquivo selecionado, faz o upload primeiro
-      if (inputMidia.files.length > 0) {
-        try {
-          mediaUrl = await uploadMidia(inputMidia.files[0]);
-        } catch (err) {
-          alert('Erro ao enviar a imagem. Tente novamente.');
-          btn.disabled = false;
-          btn.innerText = '🚀 Enviar Ocorrência';
-          return;
-        }
-      }
-
       btn.innerText = 'Enviando...';
 
       const dados = {
@@ -530,8 +484,7 @@
         maquina: document.getElementById('maquina').value,
         categoria: document.getElementById('categoria').value,
         status: document.getElementById('status').value,
-        descricao: document.getElementById('descricao').value,
-        midia: mediaUrl // Envia o link gerado da imagem/vídeo
+        descricao: document.getElementById('descricao').value
       };
 
       tg.sendData(JSON.stringify(dados));

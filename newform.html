@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nova Ocorrência</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <!-- CSS do Choices.js para busca nos campos select -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+
   <style>
     :root {
       --primary-color: #006699;
@@ -86,6 +90,19 @@
       color: #0d47a1;
     }
 
+    /* Estilo para caixa de erro de conexão */
+    .erro-box {
+      background: #fdf2f2;
+      border-left: 4px solid #d9534f;
+      padding: 10px;
+      margin-top: -8px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+      font-size: calc(13px * var(--font-scale));
+      color: #d9534f;
+      display: none;
+    }
+
     .btn-submit {
       width: 100%;
       padding: 16px;
@@ -103,6 +120,24 @@
       background-color: #cccccc;
       cursor: not-allowed;
     }
+
+    /* Ajustes visuais do Choices.js no tema */
+    .choices__inner {
+      background-color: var(--secondary-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--text-color);
+      min-height: auto;
+      padding: 6px 10px;
+    }
+    .choices__input {
+      background-color: transparent;
+      color: var(--text-color);
+    }
+    .choices__list--dropdown {
+      background-color: var(--secondary-bg);
+      color: var(--text-color);
+    }
   </style>
 </head>
 <body>
@@ -117,139 +152,141 @@
     </div>
 
     <div class="form-group">
-  <label for="maquina">🏭 Máquina / Equipamento:</label>
-  <select id="maquina" onchange="buscarHistoricoMaquina(this.value)" required>
-    <option value="" disabled selected>Selecione a máquina...</option>
+      <label for="maquina">🏭 Máquina / Equipamento:</label>
+      <select id="maquina" required>
+        <option value="" disabled selected>Selecione a máquina...</option>
 
-    <optgroup label="Cardas">
-      <option value="Carda 1">Carda 1</option>
-      <option value="Carda 2">Carda 2</option>
-      <option value="Carda 3">Carda 3</option>
-      <option value="Carda 4">Carda 4</option>
-      <option value="Carda 5">Carda 5</option>
-      <option value="Carda 6">Carda 6</option>
-      <option value="Carda 7">Carda 7</option>
-      <option value="Carda 8">Carda 8</option>
-      <option value="Carda 9">Carda 9</option>
-      <option value="Carda 10">Carda 10</option>
-      <option value="Carda 11">Carda 11</option>
-      <option value="Carda 12">Carda 12</option>
-      <option value="Carda 13">Carda 13</option>
-      <option value="Carda 14">Carda 14</option>
-      <option value="Carda 15">Carda 15</option>
-      <option value="Carda 16">Carda 16</option>
-      <option value="Carda 17">Carda 17</option>
-      <option value="Carda 18">Carda 18</option>
-      <option value="Carda 19">Carda 19</option>
-      <option value="Carda 20">Carda 20</option>
-      <option value="Carda 21">Carda 21</option>
-      <option value="Carda 22">Carda 22</option>
-      <option value="Carda 23">Carda 23</option>
-      <option value="Carda 24">Carda 24</option>
-      <option value="Carda 25">Carda 25</option>
-      <option value="Carda 26">Carda 26</option>
-      <option value="Carda 27">Carda 27</option>
-      <option value="Carda 28">Carda 28</option>
-      <option value="Carda 29">Carda 29</option>
-    </optgroup>
+        <optgroup label="Cardas">
+          <option value="Carda 1">Carda 1</option>
+          <option value="Carda 2">Carda 2</option>
+          <option value="Carda 3">Carda 3</option>
+          <option value="Carda 4">Carda 4</option>
+          <option value="Carda 5">Carda 5</option>
+          <option value="Carda 6">Carda 6</option>
+          <option value="Carda 7">Carda 7</option>
+          <option value="Carda 8">Carda 8</option>
+          <option value="Carda 9">Carda 9</option>
+          <option value="Carda 10">Carda 10</option>
+          <option value="Carda 11">Carda 11</option>
+          <option value="Carda 12">Carda 12</option>
+          <option value="Carda 13">Carda 13</option>
+          <option value="Carda 14">Carda 14</option>
+          <option value="Carda 15">Carda 15</option>
+          <option value="Carda 16">Carda 16</option>
+          <option value="Carda 17">Carda 17</option>
+          <option value="Carda 18">Carda 18</option>
+          <option value="Carda 19">Carda 19</option>
+          <option value="Carda 20">Carda 20</option>
+          <option value="Carda 21">Carda 21</option>
+          <option value="Carda 22">Carda 22</option>
+          <option value="Carda 23">Carda 23</option>
+          <option value="Carda 24">Carda 24</option>
+          <option value="Carda 25">Carda 25</option>
+          <option value="Carda 26">Carda 26</option>
+          <option value="Carda 27">Carda 27</option>
+          <option value="Carda 28">Carda 28</option>
+          <option value="Carda 29">Carda 29</option>
+        </optgroup>
 
-    <optgroup label="Open END">
-      <option value="Open END 1">Open END 1</option>
-      <option value="Open END 2">Open END 2</option>
-      <option value="Open END 3">Open END 3</option>
-      <option value="Open END 4">Open END 4</option>
-      <option value="Open END 5">Open END 5</option>
-      <option value="Open END 6">Open END 6</option>
-      <option value="Open END 7">Open END 7</option>
-      <option value="Open END 8">Open END 8</option>
-      <option value="Open END 9">Open END 9</option>
-    </optgroup>
+        <optgroup label="Open END">
+          <option value="Open END 1">Open END 1</option>
+          <option value="Open END 2">Open END 2</option>
+          <option value="Open END 3">Open END 3</option>
+          <option value="Open END 4">Open END 4</option>
+          <option value="Open END 5">Open END 5</option>
+          <option value="Open END 6">Open END 6</option>
+          <option value="Open END 7">Open END 7</option>
+          <option value="Open END 8">Open END 8</option>
+          <option value="Open END 9">Open END 9</option>
+        </optgroup>
 
-    <optgroup label="Passadores">
-      <option value="Passador TD02-1">Passador TD02-1</option>
-      <option value="Passador TD02-2">Passador TD02-2</option>
-      <option value="Passador TD02-3">Passador TD02-3</option>
-      <option value="Passador TD02-4">Passador TD02-4</option>
-      <option value="Passador TD02-5">Passador TD02-5</option>
-      <option value="Passador TD02-6">Passador TD02-6</option>
-      <option value="Passador TD03-1">Passador TD03-1</option>
-      <option value="Passador TD03-2">Passador TD03-2</option>
-      <option value="Passador TD03-3">Passador TD03-3</option>
-      <option value="Passador TD03-4">Passador TD03-4</option>
-      <option value="Passador TD03-5">Passador TD03-5</option>
-      <option value="Passador TD03-6">Passador TD03-6</option>
-    </optgroup>
+        <optgroup label="Passadores">
+          <option value="Passador TD02-1">Passador TD02-1</option>
+          <option value="Passador TD02-2">Passador TD02-2</option>
+          <option value="Passador TD02-3">Passador TD02-3</option>
+          <option value="Passador TD02-4">Passador TD02-4</option>
+          <option value="Passador TD02-5">Passador TD02-5</option>
+          <option value="Passador TD02-6">Passador TD02-6</option>
+          <option value="Passador TD03-1">Passador TD03-1</option>
+          <option value="Passador TD03-2">Passador TD03-2</option>
+          <option value="Passador TD03-3">Passador TD03-3</option>
+          <option value="Passador TD03-4">Passador TD03-4</option>
+          <option value="Passador TD03-5">Passador TD03-5</option>
+          <option value="Passador TD03-6">Passador TD03-6</option>
+        </optgroup>
 
-    <optgroup label="Maçaroqueiras">
-      <option value="Maçaroqueira 1">Maçaroqueira 1</option>
-      <option value="Maçaroqueira 2">Maçaroqueira 2</option>
-      <option value="Maçaroqueira 3">Maçaroqueira 3</option>
-      <option value="Maçaroqueira 4">Maçaroqueira 4</option>
-      <option value="Maçaroqueira 5">Maçaroqueira 5</option>
-      <option value="Maçaroqueira 6">Maçaroqueira 6</option>
-    </optgroup>
+        <optgroup label="Maçaroqueiras">
+          <option value="Maçaroqueira 1">Maçaroqueira 1</option>
+          <option value="Maçaroqueira 2">Maçaroqueira 2</option>
+          <option value="Maçaroqueira 3">Maçaroqueira 3</option>
+          <option value="Maçaroqueira 4">Maçaroqueira 4</option>
+          <option value="Maçaroqueira 5">Maçaroqueira 5</option>
+          <option value="Maçaroqueira 6">Maçaroqueira 6</option>
+        </optgroup>
 
-    <optgroup label="Filatórios">
-      <option value="Filatório 1">Filatório 1</option>
-      <option value="Filatório 2">Filatório 2</option>
-      <option value="Filatório 3">Filatório 3</option>
-      <option value="Filatório 4">Filatório 4</option>
-      <option value="Filatório 5">Filatório 5</option>
-      <option value="Filatório 6">Filatório 6</option>
-      <option value="Filatório 7">Filatório 7</option>
-      <option value="Filatório 8">Filatório 8</option>
-      <option value="Filatório 9">Filatório 9</option>
-      <option value="Filatório 10">Filatório 10</option>
-      <option value="Filatório 11">Filatório 11</option>
-      <option value="Filatório 12">Filatório 12</option>
-      <option value="Filatório 13">Filatório 13</option>
-      <option value="Filatório 14">Filatório 14</option>
-      <option value="Filatório 15">Filatório 15</option>
-      <option value="Filatório 16">Filatório 16</option>
-      <option value="Filatório 17">Filatório 17</option>
-      <option value="Filatório 18">Filatório 18</option>
-      <option value="Filatório 19">Filatório 19</option>
-    </optgroup>
+        <optgroup label="Filatórios">
+          <option value="Filatório 1">Filatório 1</option>
+          <option value="Filatório 2">Filatório 2</option>
+          <option value="Filatório 3">Filatório 3</option>
+          <option value="Filatório 4">Filatório 4</option>
+          <option value="Filatório 5">Filatório 5</option>
+          <option value="Filatório 6">Filatório 6</option>
+          <option value="Filatório 7">Filatório 7</option>
+          <option value="Filatório 8">Filatório 8</option>
+          <option value="Filatório 9">Filatório 9</option>
+          <option value="Filatório 10">Filatório 10</option>
+          <option value="Filatório 11">Filatório 11</option>
+          <option value="Filatório 12">Filatório 12</option>
+          <option value="Filatório 13">Filatório 13</option>
+          <option value="Filatório 14">Filatório 14</option>
+          <option value="Filatório 15">Filatório 15</option>
+          <option value="Filatório 16">Filatório 16</option>
+          <option value="Filatório 17">Filatório 17</option>
+          <option value="Filatório 18">Filatório 18</option>
+          <option value="Filatório 19">Filatório 19</option>
+        </optgroup>
 
-    <optgroup label="Bobinadeiras">
-      <option value="Bobinadeira 1">Bobinadeira 1</option>
-      <option value="Bobinadeira 2">Bobinadeira 2</option>
-      <option value="Bobinadeira 3">Bobinadeira 3</option>
-      <option value="Bobinadeira 4">Bobinadeira 4</option>
-      <option value="Bobinadeira 5">Bobinadeira 5</option>
-      <option value="Bobinadeira 6">Bobinadeira 6</option>
-      <option value="Bobinadeira 7">Bobinadeira 7</option>
-      <option value="Bobinadeira 8">Bobinadeira 8</option>
-      <option value="Bobinadeira 9">Bobinadeira 9</option>
-      <option value="Bobinadeira 10">Bobinadeira 10</option>
-      <option value="Bobinadeira 11">Bobinadeira 11</option>
-      <option value="Bobinadeira 12">Bobinadeira 12</option>
-      <option value="Bobinadeira 13">Bobinadeira 13</option>
-      <option value="Bobinadeira 14">Bobinadeira 14</option>
-      <option value="Bobinadeira 15">Bobinadeira 15</option>
-      <option value="Bobinadeira 16">Bobinadeira 16</option>
-      <option value="Bobinadeira 17">Bobinadeira 17</option>
-      <option value="Bobinadeira 18">Bobinadeira 18</option>
-      <option value="Bobinadeira 19">Bobinadeira 19</option>
-    </optgroup>
+        <optgroup label="Bobinadeiras">
+          <option value="Bobinadeira 1">Bobinadeira 1</option>
+          <option value="Bobinadeira 2">Bobinadeira 2</option>
+          <option value="Bobinadeira 3">Bobinadeira 3</option>
+          <option value="Bobinadeira 4">Bobinadeira 4</option>
+          <option value="Bobinadeira 5">Bobinadeira 5</option>
+          <option value="Bobinadeira 6">Bobinadeira 6</option>
+          <option value="Bobinadeira 7">Bobinadeira 7</option>
+          <option value="Bobinadeira 8">Bobinadeira 8</option>
+          <option value="Bobinadeira 9">Bobinadeira 9</option>
+          <option value="Bobinadeira 10">Bobinadeira 10</option>
+          <option value="Bobinadeira 11">Bobinadeira 11</option>
+          <option value="Bobinadeira 12">Bobinadeira 12</option>
+          <option value="Bobinadeira 13">Bobinadeira 13</option>
+          <option value="Bobinadeira 14">Bobinadeira 14</option>
+          <option value="Bobinadeira 15">Bobinadeira 15</option>
+          <option value="Bobinadeira 16">Bobinadeira 16</option>
+          <option value="Bobinadeira 17">Bobinadeira 17</option>
+          <option value="Bobinadeira 18">Bobinadeira 18</option>
+          <option value="Bobinadeira 19">Bobinadeira 19</option>
+        </optgroup>
 
-    <optgroup label="Binadeiras">
-      <option value="Binadeira 1">Binadeira 1</option>
-      <option value="Binadeira 2">Binadeira 2</option>
-      <option value="Binadeira 3">Binadeira 3</option>
-      <option value="Binadeira 4">Binadeira 4</option>
-    </optgroup>
+        <optgroup label="Binadeiras">
+          <option value="Binadeira 1">Binadeira 1</option>
+          <option value="Binadeira 2">Binadeira 2</option>
+          <option value="Binadeira 3">Binadeira 3</option>
+          <option value="Binadeira 4">Binadeira 4</option>
+        </optgroup>
 
-    <optgroup label="Outros">
-      <option value="Outros / Geral">Outros / Geral</option>
-    </optgroup>
-  </select>
-</div>
+        <optgroup label="Outros">
+          <option value="Outros / Geral">Outros / Geral</option>
+        </optgroup>
+      </select>
+    </div>
 
     <div id="historicoBox" class="historico-box">
       💡 <strong>Última solução registrada:</strong>
       <div id="historicoTexto">Carregando...</div>
     </div>
+
+    <div id="erroBox" class="erro-box"></div>
 
     <div class="form-group">
       <label for="categoria">🏷️ Categoria:</label>
@@ -278,6 +315,9 @@
     <button type="submit" id="btnSalvar" class="btn-submit">🚀 Enviar Ocorrência</button>
   </form>
 
+  <!-- JS do Choices.js -->
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
@@ -288,6 +328,25 @@
         window.location.href = 'index.html';
       });
     }
+
+    // Inicialização da busca no select de máquinas via Choices.js
+    let choicesInstance;
+    document.addEventListener('DOMContentLoaded', () => {
+      const selectMaquina = document.getElementById('maquina');
+      choicesInstance = new Choices(selectMaquina, {
+        searchEnabled: true,
+        searchPlaceholderValue: '🔍 Digite para pesquisar a máquina...',
+        searchResultLimit: -1,
+        noResultsText: 'Nenhuma máquina encontrada',
+        itemSelectText: '',
+        shouldSort: false
+      });
+
+      // Evento ao selecionar uma opção no Choices.js
+      selectMaquina.addEventListener('change', (e) => {
+        buscarHistoricoMaquina(e.detail.value);
+      });
+    });
 
     function carregarNomeTecnico() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -313,14 +372,41 @@
     const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
     const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
 
+    // Função de requisição segura com timeout e verificação de rede
+    async function fazerRequisicaoSegura(url, tempoLimiteMs = 8000) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), tempoLimiteMs);
+
+      try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!response.ok) throw new Error(`Status ${response.status}`);
+        return await response.text();
+      } catch (erro) {
+        clearTimeout(timeoutId);
+        if (erro.name === 'AbortError') {
+          throw new Error('A conexão demorou muito para responder (Timeout).');
+        } else if (!navigator.onLine) {
+          throw new Error('Você está sem conexão com a internet.');
+        } else {
+          throw new Error('Falha de conexão ao acessar os dados.');
+        }
+      }
+    }
+
     async function buscarHistoricoMaquina(maquina) {
       const box = document.getElementById('historicoBox');
       const txt = document.getElementById('historicoTexto');
+      const erroBox = document.getElementById('erroBox');
+      
+      erroBox.style.display = 'none';
       if (!maquina) { box.style.display = 'none'; return; }
 
       try {
-        const response = await fetch(URL_GVIZ);
-        const text = await response.text();
+        txt.innerText = 'Carregando...';
+        box.style.display = 'block';
+
+        const text = await fazerRequisicaoSegura(URL_GVIZ, 8000);
         const json = JSON.parse(text.substring(47, text.length - 2));
         const rows = json.table.rows;
 
@@ -334,7 +420,11 @@
         } else {
           box.style.display = 'none';
         }
-      } catch (e) { box.style.display = 'none'; }
+      } catch (e) {
+        box.style.display = 'none';
+        erroBox.innerHTML = `⚠️ <strong>Aviso:</strong> ${e.message} <button type="button" onclick="buscarHistoricoMaquina('${maquina}')" style="margin-left: 8px; padding: 2px 6px; border: none; border-radius: 4px; cursor: pointer;">🔄 Tentar novamente</button>`;
+        erroBox.style.display = 'block';
+      }
     }
 
     const fontScale = localStorage.getItem('userFontScale') || 1.1;

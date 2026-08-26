@@ -13,6 +13,24 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 
   <style>
+/* Correção de largura e overflow do Choices.js no celular */
+.choices {
+  width: 100% !important;
+  margin-bottom: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.choices__inner {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.choices__list--dropdown {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
     :root {
       --primary-color: #006699;
       --bg-color: #ffffff;

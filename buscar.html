@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Consulta de Ocorrências</title>
+  <title>Consulta & Busca Avançada de Ocorrências</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
@@ -11,6 +11,7 @@
       --bg-color: var(--tg-theme-bg-color, #ffffff);
       --text-color: var(--tg-theme-text-color, #222222);
       --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5);
+      --danger-color: #d9534f;
     }
 
     body {
@@ -39,7 +40,7 @@
       margin-bottom: 12px;
     }
 
-    input[type="text"] {
+    input[type="text"], input[type="date"] {
       width: 100%;
       padding: 10px 12px;
       border: 1px solid #ccc;
@@ -49,14 +50,45 @@
       background-color: var(--secondary-bg);
       color: var(--text-color);
     }
-    
-    /* BOTÕES DE FILTRO (CHIPS) */
+
+    .date-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .date-field {
+      flex: 1;
+    }
+
+    .date-label {
+      font-size: 11px;
+      font-weight: bold;
+      color: #777;
+      margin-bottom: 2px;
+      display: block;
+    }
+
+    /* CHIPS DE FILTRO */
     .filter-group { margin-top: 8px; }
     .filter-label { font-size: 11px; font-weight: bold; color: #777; margin-bottom: 4px; text-transform: uppercase; }
     .filter-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
     .filter-chips::-webkit-scrollbar { display: none; }
     .chip { background: var(--secondary-bg); border: 1px solid #ddd; border-radius: 16px; padding: 5px 12px; font-size: 12px; white-space: nowrap; cursor: pointer; font-weight: 500; transition: all 0.2s; }
     .chip.active { background-color: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+
+    .btn-limpar {
+      background: #6c757d;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+      width: 100%;
+      cursor: pointer;
+      margin-top: 8px;
+    }
 
     /* CARD EXPANSÍVEL */
     .card { background: var(--secondary-bg); border-left: 5px solid var(--primary-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.2s ease-in-out; }
@@ -74,23 +106,35 @@
     .status-aberto { background: #ffebee; color: #c62828; }
     .status-andamento { background: #fffde7; color: #f57f17; }
     .status-concluido { background: #e8f5e9; color: #2e7d32; }
-    .status-cancelado { background: #eee; color: #616161; }
 
-    /* CONTROLE DE MUDANÇA DE STATUS */
     .status-changer { margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.04); border-radius: 6px; border: 1px solid #ddd; }
     .status-select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; margin-top: 6px; font-weight: bold; font-size: 14px; background: #fff; }
-    
+
     .midia-btn { display: block; width: 100%; text-align: center; background-color: var(--primary-color); color: #fff; padding: 8px 0; border-radius: 6px; text-decoration: none; font-weight: bold; margin-top: 10px; box-sizing: border-box; }
+    
+    .btn-excluir {
+      background-color: var(--danger-color);
+      color: #ffffff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+    }
+
     .click-hint { font-size: 11px; color: #888; text-align: right; margin-top: 6px; }
     #status-msg { text-align: center; padding: 20px; font-weight: bold; color: #777; }
+    #contador-resultados { font-size: 12px; font-weight: bold; margin-bottom: 8px; color: #555; }
   </style>
 </head>
 <body>
 
-  <h2>🔎 Consultar & Gerenciar</h2>
+  <h2>🔎 Consultar & Buscar Ocorrências</h2>
 
   <div class="search-container">
-    <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Digitar palavra-chave...">
+    <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Digitar palavra-chave (máquina, técnico, id)...">
 
     <div class="filter-group">
       <div class="filter-label">Status:</div>
@@ -104,7 +148,7 @@
 
     <div class="filter-group">
       <div class="filter-label">Categoria:</div>
-      <div class="filter-chips">
+      <div class="filter-chips" id="categoriaChips">
         <div class="chip active" onclick="selecionarFiltro('categoria', 'TODOS', this)">Todas</div>
         <div class="chip" onclick="selecionarFiltro('categoria', 'Corretiva', this)">🛠️ Corretiva</div>
         <div class="chip" onclick="selecionarFiltro('categoria', 'Preventiva', this)">📅 Preventiva</div>
@@ -112,9 +156,23 @@
         <div class="chip" onclick="selecionarFiltro('categoria', 'Pendência', this)">⏳ Pendência</div>
       </div>
     </div>
+
+    <div class="date-row">
+      <div class="date-field">
+        <span class="date-label">📅 Data Inicial:</span>
+        <input type="date" id="dataInicio" onchange="aplicarFiltros()">
+      </div>
+      <div class="date-field">
+        <span class="date-label">📅 Data Final:</span>
+        <input type="date" id="dataFim" onchange="aplicarFiltros()">
+      </div>
+    </div>
+
+    <button class="btn-limpar" onclick="limparTodosFiltros()">🧹 Limpar Todos os Filtros</button>
   </div>
 
   <div id="status-msg">⏳ Carregando ocorrências da planilha...</div>
+  <div id="contador-resultados"></div>
   <div id="listaOcorrencias"></div>
 
   <script>
@@ -126,12 +184,14 @@
     const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
     const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const tecnicoLogado = urlParams.get('tecnico') || '';
+
     let todasOcorrencias = [];
     let filtroStatusAtivo = 'TODOS';
     let filtroCategoriaAtivo = 'TODOS';
 
     function verificarFiltroURL() {
-      const urlParams = new URLSearchParams(window.location.search);
       const statusParam = urlParams.get('status');
       if (statusParam) {
         filtroStatusAtivo = statusParam;
@@ -208,6 +268,12 @@
 
     function aplicarFiltros() {
       const termo = document.getElementById('searchInput').value.toLowerCase();
+      const dtInicioStr = document.getElementById('dataInicio').value;
+      const dtFimStr = document.getElementById('dataFim').value;
+
+      const dtInicio = dtInicioStr ? new Date(dtInicioStr + "T00:00:00") : null;
+      const dtFim = dtFimStr ? new Date(dtFimStr + "T23:59:59") : null;
+
       const filtradas = todasOcorrencias.filter(item => {
         const bateuTexto = (
           String(item.id).toLowerCase().includes(termo) ||
@@ -216,12 +282,36 @@
           String(item.tecnico).toLowerCase().includes(termo) ||
           String(item.data).toLowerCase().includes(termo)
         );
+
         const bateuStatus = (filtroStatusAtivo === 'TODOS') || String(item.status).toLowerCase().includes(filtroStatusAtivo.toLowerCase());
         const bateuCategoria = (filtroCategoriaAtivo === 'TODOS') || String(item.categoria).toLowerCase().includes(filtroCategoriaAtivo.toLowerCase());
-        
-        return bateuTexto && bateuStatus && bateuCategoria;
+
+        let bateuData = true;
+        if (dtInicio || dtFim) {
+          const itemDt = parseDataHora(item.data);
+          if (dtInicio && itemDt < dtInicio) bateuData = false;
+          if (dtFim && itemDt > dtFim) bateuData = false;
+        }
+
+        return bateuTexto && bateuStatus && bateuCategoria && bateuData;
       });
+
       renderizarLista(filtradas);
+    }
+
+    function limparTodosFiltros() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('dataInicio').value = '';
+      document.getElementById('dataFim').value = '';
+
+      filtroStatusAtivo = 'TODOS';
+      filtroCategoriaAtivo = 'TODOS';
+
+      document.querySelectorAll('.chip').forEach(chip => chip.classList.remove('active'));
+      document.querySelectorAll('#statusChips .chip')[0].classList.add('active');
+      document.querySelectorAll('#categoriaChips .chip')[0].classList.add('active');
+
+      aplicarFiltros();
     }
 
     function atualizarStatusServidor(idOcorrencia, novoStatus) {
@@ -232,9 +322,22 @@
       }));
     }
 
+    function confirmarExclusao(id) {
+      if (confirm(`Tem certeza de que deseja excluir permanentemente a ocorrência #${id}?`)) {
+        tg.sendData(JSON.stringify({
+          acao: "EXCLUIR_OCORRENCIA",
+          id: id,
+          solicitante: tecnicoLogado
+        }));
+      }
+    }
+
     function renderizarLista(lista) {
       const container = document.getElementById('listaOcorrencias');
+      const contador = document.getElementById('contador-resultados');
       container.innerHTML = '';
+
+      contador.innerText = `Exibindo ${lista.length} de ${todasOcorrencias.length} ocorrência(s)`;
 
       if (lista.length === 0) {
         container.innerHTML = '<p style="text-align:center; color:#777; margin-top:20px;">Nenhuma ocorrência encontrada para esses filtros.</p>';
@@ -244,10 +347,9 @@
       lista.forEach(item => {
         const card = document.createElement('div');
         card.className = 'card';
-        
-        // Evita abrir/fechar o card quando clica no dropdown de status
+
         card.onclick = (e) => {
-          if (!e.target.classList.contains('status-select')) {
+          if (!e.target.classList.contains('status-select') && !e.target.classList.contains('btn-excluir')) {
             card.classList.toggle('expanded');
           }
         };
@@ -256,14 +358,21 @@
         const st = String(item.status);
         if (st.includes('Andamento')) statusClass = 'status-andamento';
         if (st.includes('Concluído')) statusClass = 'status-concluido';
-        if (st.includes('Cancelado')) statusClass = 'status-cancelado';
 
         let btnMidia = '';
         if (item.midia && String(item.midia).startsWith('http')) {
           btnMidia = `<a href="${item.midia}" target="_blank" class="midia-btn" onclick="event.stopPropagation();">🖼️ Abrir Mídia Anexada</a>`;
         }
 
-        // Dropdown pré-selecionado com o status atual
+        let botaoExcluirHTML = '';
+        if (tecnicoLogado && item.tecnico.trim().toLowerCase() === tecnicoLogado.trim().toLowerCase()) {
+          botaoExcluirHTML = `
+            <button class="btn-excluir" onclick="event.stopPropagation(); confirmarExclusao('${item.id}');">
+              🗑️ Excluir Ocorrência
+            </button>
+          `;
+        }
+
         const optAberto = st.includes('Aberto') ? 'selected' : '';
         const optAndamento = st.includes('Andamento') ? 'selected' : '';
         const optConcluido = st.includes('Concluído') ? 'selected' : '';
@@ -273,7 +382,7 @@
             <span class="card-id">#${item.id} - ${item.maquina}</span>
             <span class="badge ${statusClass}">${item.status}</span>
           </div>
-          
+
           <div class="card-meta">📅 ${item.data}</div>
           <div class="card-preview">📝 ${item.descricao}</div>
           <div class="click-hint">👇 Toque para ver detalhes</div>
@@ -282,7 +391,8 @@
             <div class="detail-item"><strong>🏷️ Categoria:</strong> ${item.categoria}</div>
             <div class="detail-item"><strong>👨‍🔧 Técnico Responsável:</strong> ${item.tecnico}</div>
             <div class="detail-item"><strong>📝 Descrição Completa:</strong><br>${item.descricao}</div>
-            
+            ${btnMidia}
+
             <div class="status-changer" onclick="event.stopPropagation();">
               <label><strong>🔄 Atualizar Status:</strong></label>
               <select class="status-select" onchange="atualizarStatusServidor('${item.id}', this.value)">
@@ -292,14 +402,15 @@
               </select>
             </div>
 
-            ${btnMidia}
+            ${botaoExcluirHTML}
           </div>
         `;
+
         container.appendChild(card);
       });
     }
 
-    carregarOcorrencias();
+    window.onload = carregarOcorrencias;
   </script>
 </body>
 </html>

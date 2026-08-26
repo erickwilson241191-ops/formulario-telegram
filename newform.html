@@ -5,7 +5,6 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nova Ocorrência</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -334,22 +333,33 @@
     }
 
     // Inicialização da busca no select de máquinas via Choices.js
-    let choicesInstance;
+    let choicesInstance = null;
     document.addEventListener('DOMContentLoaded', () => {
       const selectMaquina = document.getElementById('maquina');
-      choicesInstance = new Choices(selectMaquina, {
-        searchEnabled: true,
-        searchPlaceholderValue: '🔍 Digite para pesquisar a máquina...',
-        searchResultLimit: -1,
-        noResultsText: 'Nenhuma máquina encontrada',
-        itemSelectText: '',
-        shouldSort: false
-      });
+      
+      try {
+        choicesInstance = new Choices(selectMaquina, {
+          searchEnabled: true,
+          searchPlaceholderValue: '🔍 Digite para pesquisar a máquina...',
+          searchResultLimit: -1,
+          noResultsText: 'Nenhuma máquina encontrada',
+          itemSelectText: '',
+          shouldSort: false,
+          allowHTML: true
+        });
 
-      // Evento ao selecionar uma opção no Choices.js
-      selectMaquina.addEventListener('change', (e) => {
-        buscarHistoricoMaquina(e.detail.value);
-      });
+        // Evento adaptado do Choices.js para telas touch e mobile
+        selectMaquina.addEventListener('choice', (e) => {
+          if (e.detail && e.detail.choice) {
+            buscarHistoricoMaquina(e.detail.choice.value);
+          }
+        });
+      } catch (err) {
+        console.warn('Fallback ativado: utilizando dropdown nativo.', err);
+        selectMaquina.addEventListener('change', (e) => {
+          buscarHistoricoMaquina(e.target.value);
+        });
+      }
     });
 
     function carregarNomeTecnico() {

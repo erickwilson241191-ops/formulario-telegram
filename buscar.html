@@ -5,7 +5,6 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Consulta & Busca Avançada de Ocorrências</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -116,6 +115,11 @@
 
     .midia-btn { display: block; width: 100%; text-align: center; background-color: var(--primary-color); color: #fff; padding: 8px 0; border-radius: 6px; text-decoration: none; font-weight: bold; margin-top: 10px; box-sizing: border-box; }
     
+    /* NOVO: ESTILOS DE MÍDIA INCORPORADA */
+    .media-container { margin-top: 10px; text-align: center; }
+    .media-container img, .media-container video { max-width: 100%; border-radius: 8px; max-height: 320px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); display: block; margin: 0 auto; }
+    .badge-media { font-size: 1.1em; margin-left: 4px; }
+
     .btn-excluir {
       background-color: var(--danger-color);
       color: #ffffff;
@@ -362,7 +366,7 @@
         card.className = 'card';
 
         card.onclick = (e) => {
-          if (!e.target.classList.contains('status-select') && !e.target.classList.contains('btn-excluir')) {
+          if (!e.target.classList.contains('status-select') && !e.target.classList.contains('btn-excluir') && e.target.tagName !== 'VIDEO') {
             card.classList.toggle('expanded');
           }
         };
@@ -372,9 +376,32 @@
         if (st.includes('Andamento')) statusClass = 'status-andamento';
         if (st.includes('Concluído')) statusClass = 'status-concluido';
 
-        let btnMidia = '';
+        // LÓGICA DE IDENTIFICAÇÃO E EXIBIÇÃO DE MÍDIA AUTOMÁTICA
+        let iconeMidia = '';
+        let midiaHTML = '';
+
         if (item.midia && String(item.midia).startsWith('http')) {
-          btnMidia = `<a href="${item.midia}" target="_blank" class="midia-btn" onclick="event.stopPropagation();">🖼️ Abrir Mídia Anexada</a>`;
+          const urlLower = String(item.midia).toLowerCase();
+          const isVideo = urlLower.includes('.mp4') || urlLower.includes('/video/upload/');
+
+          if (isVideo) {
+            iconeMidia = '<span class="badge-media" title="Possui Vídeo">🎥</span>';
+            midiaHTML = `
+              <div class="media-container" onclick="event.stopPropagation();">
+                <video controls preload="metadata">
+                  <source src="${item.midia}" type="video/mp4">
+                  Seu navegador não suporta a exibição deste vídeo.
+                </video>
+              </div>
+            `;
+          } else {
+            iconeMidia = '<span class="badge-media" title="Possui Foto">📷</span>';
+            midiaHTML = `
+              <div class="media-container" onclick="event.stopPropagation();">
+                <img src="${item.midia}" alt="Foto da Ocorrência" loading="lazy">
+              </div>
+            `;
+          }
         }
 
         let botaoExcluirHTML = '';
@@ -392,7 +419,7 @@
 
         card.innerHTML = `
           <div class="card-header">
-            <span class="card-id">#${item.id} - ${item.maquina}</span>
+            <span class="card-id">#${item.id} - ${item.maquina} ${iconeMidia}</span>
             <span class="badge ${statusClass}">${item.status}</span>
           </div>
 
@@ -404,7 +431,8 @@
             <div class="detail-item"><strong>🏷️ Categoria:</strong> ${item.categoria}</div>
             <div class="detail-item"><strong>👨‍🔧 Técnico Responsável:</strong> ${item.tecnico}</div>
             <div class="detail-item"><strong>📝 Descrição Completa:</strong><br>${item.descricao}</div>
-            ${btnMidia}
+            
+            ${midiaHTML}
 
             <div class="status-changer" onclick="event.stopPropagation();">
               <label><strong>🔄 Atualizar Status:</strong></label>

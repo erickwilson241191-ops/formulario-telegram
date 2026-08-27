@@ -5,26 +5,30 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Central de Ocorrências</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --primary-color: #006699;
-      --bg-color: #ffffff;
-      --text-color: #111111;
-      --secondary-bg: #eef2f5;
-      --card-border: #cccccc;
-      --font-scale: 1.1;
+      --primary-color: #0088cc;
+      --bg-color: #f4f5f9;
+      --card-bg: #ffffff;
+      --text-color: #1c1c1e;
+      --text-muted: #8e8e93;
+      --card-border: #e5e5ea;
+      --font-scale: 1;
+      
+      --danger: #ff3b30;
+      --warning: #ff9500;
+      --success: #34c759;
     }
 
     body.theme-black {
-      --primary-color: #33b5e5;
       --bg-color: #000000;
+      --card-bg: #1c1c1e;
       --text-color: #ffffff;
-      --secondary-bg: #121212;
-      --card-border: #333333;
+      --text-muted: #8e8e93;
+      --card-border: #2c2c2e;
     }
 
     body {
@@ -34,42 +38,69 @@
       margin: 0;
       padding: 16px;
       box-sizing: border-box;
-      font-size: calc(16px * var(--font-scale));
+      font-size: calc(15px * var(--font-scale));
+      -webkit-font-smoothing: antialiased;
     }
 
-    .header { margin-bottom: 20px; }
+    /* BANNER SUPERIOR DE SAUDAÇÃO */
+    .hero-banner {
+      background: linear-gradient(135deg, #0088cc, #005580);
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 20px rgba(0, 136, 204, 0.2);
+    }
 
     .top-info {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
     }
 
     .user-greeting {
       font-size: calc(22px * var(--font-scale));
       font-weight: 800;
-      color: var(--primary-color);
-    }
-
-    .btn-config {
-      background: var(--secondary-bg);
-      border: 2px solid var(--card-border);
-      border-radius: 10px;
-      padding: 6px 12px;
-      font-size: calc(14px * var(--font-scale));
-      font-weight: bold;
-      color: var(--text-color);
-      cursor: pointer;
+      margin: 0;
+      letter-spacing: -0.5px;
     }
 
     .subtitle {
-      margin: 0;
-      font-size: calc(15px * var(--font-scale));
-      font-weight: 600;
-      opacity: 0.8;
+      margin: 6px 0 0 0;
+      font-size: calc(13px * var(--font-scale));
+      opacity: 0.85;
+      font-weight: 500;
     }
 
+    .btn-config {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: calc(13px * var(--font-scale));
+      font-weight: 700;
+      color: #ffffff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-config:active {
+      transform: scale(0.95);
+    }
+
+    /* TÍTULOS DE SEÇÃO SEÇÃO DE ESTILO MODERNIZADO */
+    .section-title {
+      font-size: calc(13px * var(--font-scale));
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-left: 4px;
+    }
+
+    /* CARDS DE INDICADORES (KPIs) */
     .kpi-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -78,35 +109,35 @@
     }
 
     .kpi-card {
-      background: var(--secondary-bg);
-      border-radius: 12px;
-      padding: 14px 6px;
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 16px 8px;
       text-align: center;
-      border: 2px solid var(--card-border);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
       cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .kpi-card:active {
+      transform: scale(0.96);
     }
 
     .kpi-value {
-      font-size: calc(26px * var(--font-scale));
-      font-weight: 900;
+      font-size: calc(24px * var(--font-scale));
+      font-weight: 800;
+      line-height: 1.2;
       margin-bottom: 4px;
     }
 
     .kpi-label {
-      font-size: calc(12px * var(--font-scale));
+      font-size: calc(11px * var(--font-scale));
       text-transform: uppercase;
-      font-weight: 800;
+      font-weight: 700;
+      color: var(--text-muted);
     }
 
-    .section-title {
-      font-size: calc(15px * var(--font-scale));
-      font-weight: 800;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-      border-bottom: 2px solid var(--primary-color);
-      padding-bottom: 4px;
-    }
-
+    /* GRID DE NAVEGAÇÃO */
     .menu-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -115,111 +146,150 @@
     }
 
     .menu-card {
-      background: var(--secondary-bg);
-      border: 2px solid var(--primary-color);
-      border-radius: 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
       padding: 16px;
       display: flex;
       align-items: center;
       cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      transition: transform 0.2s ease;
+    }
+
+    .menu-card:active {
+      transform: scale(0.98);
     }
 
     .card-icon {
-      font-size: calc(28px * var(--font-scale));
+      font-size: calc(24px * var(--font-scale));
       margin-right: 16px;
       background: var(--bg-color);
-      width: 50px;
-      height: 50px;
-      border-radius: 12px;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
       border: 1px solid var(--card-border);
+      flex-shrink: 0;
+    }
+
+    .card-content {
+      flex: 1;
     }
 
     .card-content h3 {
       margin: 0;
-      font-size: calc(18px * var(--font-scale));
-      color: var(--primary-color);
-      font-weight: bold;
+      font-size: calc(16px * var(--font-scale));
+      color: var(--text-color);
+      font-weight: 700;
     }
 
     .card-content p {
-      margin: 4px 0 0 0;
-      font-size: calc(13px * var(--font-scale));
-      opacity: 0.8;
-      font-weight: 600;
+      margin: 3px 0 0 0;
+      font-size: calc(12px * var(--font-scale));
+      color: var(--text-muted);
+      font-weight: 500;
     }
 
+    .card-arrow {
+      color: var(--text-muted);
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    /* FEED RECENTE */
     .feed-container {
-      background: var(--secondary-bg);
-      border-radius: 12px;
-      padding: 12px;
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 6px 16px;
       margin-bottom: 24px;
-      border: 2px solid var(--card-border);
-      max-height: 220px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      max-height: 260px;
       overflow-y: auto;
     }
 
     .feed-item {
-      padding: 10px 0;
-      border-bottom: 2px dashed var(--card-border);
-      font-size: calc(14px * var(--font-scale));
+      padding: 12px 0;
+      border-bottom: 1px solid var(--card-border);
+      font-size: calc(13px * var(--font-scale));
     }
 
-    .feed-item:last-child { border-bottom: none; }
+    .feed-item:last-child {
+      border-bottom: none;
+    }
 
     .feed-header {
       display: flex;
       justify-content: space-between;
-      font-weight: 900;
+      font-weight: 700;
       margin-bottom: 4px;
+      font-size: calc(14px * var(--font-scale));
     }
 
+    .feed-desc {
+      color: var(--text-muted);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* BOTÃO VOLTAR */
     .btn-voltar {
       display: flex;
       align-items: center;
       justify-content: center;
       width: 100%;
       padding: 16px;
-      background-color: var(--secondary-bg);
+      background-color: var(--card-bg);
       color: var(--text-color);
-      border: 2px solid var(--card-border);
-      border-radius: 12px;
-      font-size: calc(16px * var(--font-scale));
-      font-weight: bold;
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      font-size: calc(15px * var(--font-scale));
+      font-weight: 700;
       cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-voltar:active {
+      background-color: var(--card-border);
     }
   </style>
 </head>
 <body>
 
-  <!-- CABEÇALHO COM BOTÃO DE CONFIGURAÇÃO -->
-  <div class="header">
+  <!-- BANNER CABEÇALHO -->
+  <div class="hero-banner">
     <div class="top-info">
-      <div class="user-greeting" id="userName">Olá! 👋</div>
+      <div>
+        <h1 class="user-greeting" id="userName">Olá! 👋</h1>
+        <p class="subtitle">Central de Gestão e Manutenção</p>
+      </div>
       <button class="btn-config" onclick="navegarPara('config.html')">⚙️ Configs</button>
     </div>
-    <p class="subtitle">Central de Gestão e Manutenção</p>
   </div>
 
-  <!-- INDICADORES -->
+  <!-- INDICADORES (KPIs) -->
   <div class="kpi-container">
     <div class="kpi-card" onclick="filtrarPorStatus('Aberto')">
-      <div class="kpi-value" id="kpiAbertos" style="color: #ff4d4d;">-</div>
+      <div class="kpi-value" id="kpiAbertos" style="color: var(--danger);">-</div>
       <div class="kpi-label">Abertos 🔴</div>
     </div>
     <div class="kpi-card" onclick="filtrarPorStatus('Andamento')">
-      <div class="kpi-value" id="kpiAndamento" style="color: #ffaa00;">-</div>
+      <div class="kpi-value" id="kpiAndamento" style="color: var(--warning);">-</div>
       <div class="kpi-label">Andamento 🟡</div>
     </div>
     <div class="kpi-card" onclick="filtrarPorStatus('Concluído')">
-      <div class="kpi-value" id="kpiConcluidos" style="color: #2ecc71;">-</div>
+      <div class="kpi-value" id="kpiConcluidos" style="color: var(--success);">-</div>
       <div class="kpi-label">Concluídos 🟢</div>
     </div>
   </div>
 
-  <!-- MENUS -->
+  <!-- MENUS DE AÇÃO -->
   <div class="section-title">Ações Principais</div>
   <div class="menu-grid">
     <div class="menu-card" onclick="navegarPara('newform.html')">
@@ -228,6 +298,7 @@
         <h3>Nova Ocorrência</h3>
         <p>Cadastrar nova manutenção</p>
       </div>
+      <div class="card-arrow">›</div>
     </div>
 
     <div class="menu-card" onclick="navegarPara('buscar.html')">
@@ -236,22 +307,25 @@
         <h3>Consultar / Filtrar</h3>
         <p>Buscar ocorrências cadastradas</p>
       </div>
+      <div class="card-arrow">›</div>
     </div>
 
-    <!-- ABA DASHBOARD ADICIONADA -->
     <div class="menu-card" onclick="navegarPara('dashboard.html')">
       <div class="card-icon">📊</div>
       <div class="card-content">
         <h3>Painel Dashboard</h3>
         <p>Indicadores gerais e gráficos</p>
       </div>
+      <div class="card-arrow">›</div>
     </div>
   </div>
 
   <!-- FEED RECENTE -->
   <div class="section-title">Últimos Lançamentos</div>
   <div class="feed-container" id="feedRecente">
-    <div style="text-align: center; padding: 12px;">⏳ Carregando registros...</div>
+    <div style="text-align: center; padding: 20px; color: var(--text-muted); font-weight: 600;">
+      ⏳ Carregando registros...
+    </div>
   </div>
 
   <button class="btn-voltar" onclick="fecharTelegram()">
@@ -261,38 +335,28 @@
   <script>
     const tg = window.Telegram.WebApp;
 
-    // 1. Força a expansão e avisa o Telegram que o app está pronto
+    // Força a expansão do aplicativo
     tg.expand();
 
     function carregarUsuario() {
-      // 1. Tenta pegar a tag 'tecnico' ou 'nome' da URL enviada pelo Bot
       const urlParams = new URLSearchParams(window.location.search);
       const nomeUrl = urlParams.get('tecnico') || urlParams.get('nome');
-      
-      // 2. Tenta pegar do Telegram WebApp SDK (se disponível)
       const userTelegram = window.Telegram.WebApp.initDataUnsafe?.user?.first_name;
-      
-      // 3. Tenta pegar nome editado no aplicativo (se o usuário mudou nas configs)
       const nomeConfig = localStorage.getItem('userCustomName');
 
-      // Define a prioridade do nome a ser exibido
       const nomeFinal = nomeConfig || nomeUrl || userTelegram || 'Técnico';
 
-      // Se veio um nome válido da URL ou Telegram, salva em cache local
       if (nomeUrl || userTelegram) {
         localStorage.setItem('userTelegramName', nomeUrl || userTelegram);
       }
 
-      // Atualiza o texto na tela inicial
       document.getElementById('userName').innerText = `Olá, ${nomeFinal}! 👋`;
     }
 
-    // Executa a função imediatamente ao abrir a página
     carregarUsuario();
 
-    // Aplica as preferências visuais de fonte e tema
     function aplicarPreferencias() {
-      const fontScale = localStorage.getItem('userFontScale') || 1.1;
+      const fontScale = localStorage.getItem('userFontScale') || 1;
       const theme = localStorage.getItem('userTheme') || 'light';
 
       document.documentElement.style.setProperty('--font-scale', fontScale);
@@ -355,7 +419,7 @@
               <span>#${item.id} - ${item.maquina}</span>
               <span style="color: var(--primary-color);">${item.status}</span>
             </div>
-            <div>${item.descricao}</div>
+            <div class="feed-desc">${item.descricao}</div>
           `;
           feedContainer.appendChild(itemDiv);
         });

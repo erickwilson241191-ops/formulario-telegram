@@ -14,20 +14,25 @@
 
   <style>
     :root {
-      --primary-color: #006699;
-      --bg-color: #ffffff;
-      --text-color: #111111;
-      --secondary-bg: #eef2f5;
-      --card-border: #cccccc;
-      --font-scale: 1.1;
+      --primary-color: #0088cc;
+      --bg-color: #f4f5f9;
+      --card-bg: #ffffff;
+      --text-color: #1c1c1e;
+      --text-muted: #8e8e93;
+      --card-border: #e5e5ea;
+      --font-scale: 1;
+      
+      --danger: #ff3b30;
+      --warning: #ff9500;
+      --success: #34c759;
     }
 
     body.theme-black {
-      --primary-color: #33b5e5;
       --bg-color: #000000;
+      --card-bg: #1c1c1e;
       --text-color: #ffffff;
-      --secondary-bg: #121212;
-      --card-border: #333333;
+      --text-muted: #8e8e93;
+      --card-border: #2c2c2e;
     }
 
     html, body {
@@ -42,73 +47,118 @@
       margin: 0;
       padding: 16px;
       box-sizing: border-box;
-      font-size: calc(16px * var(--font-scale));
+      font-size: calc(15px * var(--font-scale));
+      -webkit-font-smoothing: antialiased;
     }
 
-    h2 {
-      margin-top: 0;
-      color: var(--primary-color);
+    /* BANNER DE CABEÇALHO HERO */
+    .hero-banner {
+      background: linear-gradient(135deg, #0088cc, #005580);
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 20px rgba(0, 136, 204, 0.2);
+    }
+
+    .hero-banner h1 {
       font-size: calc(20px * var(--font-scale));
-      border-bottom: 2px solid var(--primary-color);
-      padding-bottom: 6px;
+      font-weight: 800;
+      margin: 0;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-banner p {
+      margin: 6px 0 0 0;
+      font-size: calc(13px * var(--font-scale));
+      opacity: 0.85;
+      font-weight: 500;
+    }
+
+    /* CONTAINER DO FORMULÁRIO */
+    .form-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      margin-bottom: 20px;
     }
 
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       width: 100%;
       box-sizing: border-box;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
     }
 
     label {
       display: block;
-      font-weight: bold;
-      margin-bottom: 6px;
-      font-size: calc(14px * var(--font-scale));
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: calc(13px * var(--font-scale));
+      color: var(--text-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     select, textarea, input[type="text"], input[type="file"] {
       width: 100%;
-      padding: 12px;
-      border: 2px solid var(--card-border);
-      border-radius: 10px;
-      background-color: var(--secondary-bg);
+      padding: 14px;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      background-color: var(--bg-color);
       color: var(--text-color);
       font-size: calc(15px * var(--font-scale));
       box-sizing: border-box;
       font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    select:focus, textarea:focus, input[type="text"]:focus {
+      border-color: var(--primary-color);
     }
 
     input[readonly] {
-      opacity: 0.75;
+      opacity: 0.7;
       cursor: not-allowed;
     }
 
     textarea {
       resize: vertical;
-      min-height: 100px;
+      min-height: 110px;
     }
 
+    /* ESTILIZAÇÃO DOS ENVIOS E CAIXAS DE ALERTA */
     .historico-box {
-      background: #e3f2fd;
-      border-left: 4px solid #2196f3;
-      padding: 10px;
-      margin-top: -8px;
-      margin-bottom: 16px;
-      border-radius: 6px;
+      background: rgba(0, 136, 204, 0.08);
+      border-left: 4px solid var(--primary-color);
+      padding: 12px 16px;
+      margin-top: -6px;
+      margin-bottom: 18px;
+      border-radius: 10px;
       font-size: calc(13px * var(--font-scale));
       display: none;
-      color: #0d47a1;
+      color: var(--text-color);
+      line-height: 1.4;
     }
 
     .erro-box {
-      background: #fdf2f2;
-      border-left: 4px solid #d9534f;
-      padding: 10px;
-      margin-top: -8px;
-      margin-bottom: 16px;
-      border-radius: 6px;
+      background: rgba(255, 59, 48, 0.1);
+      border-left: 4px solid var(--danger);
+      padding: 12px 16px;
+      margin-top: -6px;
+      margin-bottom: 18px;
+      border-radius: 10px;
       font-size: calc(13px * var(--font-scale));
-      color: #d9534f;
+      color: var(--danger);
       display: none;
     }
 
@@ -116,22 +166,29 @@
       width: 100%;
       padding: 16px;
       background-color: var(--primary-color);
-      color: white;
+      color: #ffffff;
       border: none;
-      border-radius: 12px;
+      border-radius: 16px;
       font-size: calc(16px * var(--font-scale));
-      font-weight: bold;
+      font-weight: 800;
       cursor: pointer;
       margin-top: 10px;
-      box-sizing: border-box;
+      box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .btn-submit:active {
+      transform: scale(0.98);
     }
 
     .btn-submit:disabled {
-      background-color: #cccccc;
+      background-color: var(--card-border);
+      color: var(--text-muted);
+      box-shadow: none;
       cursor: not-allowed;
     }
 
-    /* --- CORREÇÃO DEFINITIVA DE ESTOURO DO CHOICES.JS --- */
+    /* CUSTOMIZAÇÃO & OVERRIDE PARA CHOICES.JS SE ENQUADRAR AO DASHBOARD */
     .choices {
       width: 100% !important;
       max-width: 100% !important;
@@ -144,11 +201,11 @@
       max-width: 100% !important;
       min-height: auto !important;
       box-sizing: border-box !important;
-      background-color: var(--secondary-bg) !important;
-      border: 2px solid var(--card-border) !important;
-      border-radius: 10px !important;
+      background-color: var(--bg-color) !important;
+      border: 1px solid var(--card-border) !important;
+      border-radius: 12px !important;
       color: var(--text-color) !important;
-      padding: 6px 10px !important;
+      padding: 8px 12px !important;
       overflow: hidden !important;
     }
 
@@ -158,193 +215,210 @@
       box-sizing: border-box !important;
       background-color: transparent !important;
       color: var(--text-color) !important;
+      font-size: calc(14px * var(--font-scale)) !important;
     }
 
     .choices__list--dropdown {
       width: 100% !important;
       max-width: 100% !important;
       box-sizing: border-box !important;
-      background-color: var(--secondary-bg) !important;
+      background-color: var(--card-bg) !important;
       color: var(--text-color) !important;
+      border: 1px solid var(--card-border) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important;
+    }
+
+    .choices__list--dropdown .choices__item--selectable.is-highlighted {
+      background-color: var(--primary-color) !important;
+      color: #ffffff !important;
     }
   </style>
 </head>
 <body>
 
-  <h2>📝 Registrar Nova Ocorrência</h2>
+  <!-- CABEÇALHO DA PÁGINA -->
+  <div class="hero-banner">
+    <h1>📝 Nova Ocorrência</h1>
+    <p>Preencha os detalhes para registrar no sistema</p>
+  </div>
 
+  <!-- FORMULÁRIO -->
   <form id="formOcorrencia">
-    
-    <div class="form-group">
-      <label for="tecnico">👤 Técnico Responsável:</label>
-      <input type="text" id="tecnico" readonly placeholder="Carregando nome...">
-    </div>
+    <div class="form-card">
+      
+      <div class="form-group">
+        <label for="tecnico">👤 Técnico Responsável</label>
+        <input type="text" id="tecnico" readonly placeholder="Carregando nome...">
+      </div>
 
-    <div class="form-group">
-      <label for="maquina">🏭 Máquina / Equipamento:</label>
-      <select id="maquina" required>
-        <option value="" disabled selected>Selecione a máquina...</option>
+      <div class="form-group">
+        <label for="maquina">🏭 Máquina / Equipamento</label>
+        <select id="maquina" required>
+          <option value="" disabled selected>Selecione a máquina...</option>
 
-        <optgroup label="Cardas">
-          <option value="Carda 1">Carda 1</option>
-          <option value="Carda 2">Carda 2</option>
-          <option value="Carda 3">Carda 3</option>
-          <option value="Carda 4">Carda 4</option>
-          <option value="Carda 5">Carda 5</option>
-          <option value="Carda 6">Carda 6</option>
-          <option value="Carda 7">Carda 7</option>
-          <option value="Carda 8">Carda 8</option>
-          <option value="Carda 9">Carda 9</option>
-          <option value="Carda 10">Carda 10</option>
-          <option value="Carda 11">Carda 11</option>
-          <option value="Carda 12">Carda 12</option>
-          <option value="Carda 13">Carda 13</option>
-          <option value="Carda 14">Carda 14</option>
-          <option value="Carda 15">Carda 15</option>
-          <option value="Carda 16">Carda 16</option>
-          <option value="Carda 17">Carda 17</option>
-          <option value="Carda 18">Carda 18</option>
-          <option value="Carda 19">Carda 19</option>
-          <option value="Carda 20">Carda 20</option>
-          <option value="Carda 21">Carda 21</option>
-          <option value="Carda 22">Carda 22</option>
-          <option value="Carda 23">Carda 23</option>
-          <option value="Carda 24">Carda 24</option>
-          <option value="Carda 25">Carda 25</option>
-          <option value="Carda 26">Carda 26</option>
-          <option value="Carda 27">Carda 27</option>
-          <option value="Carda 28">Carda 28</option>
-          <option value="Carda 29">Carda 29</option>
-        </optgroup>
+          <optgroup label="Cardas">
+            <option value="Carda 1">Carda 1</option>
+            <option value="Carda 2">Carda 2</option>
+            <option value="Carda 3">Carda 3</option>
+            <option value="Carda 4">Carda 4</option>
+            <option value="Carda 5">Carda 5</option>
+            <option value="Carda 6">Carda 6</option>
+            <option value="Carda 7">Carda 7</option>
+            <option value="Carda 8">Carda 8</option>
+            <option value="Carda 9">Carda 9</option>
+            <option value="Carda 10">Carda 10</option>
+            <option value="Carda 11">Carda 11</option>
+            <option value="Carda 12">Carda 12</option>
+            <option value="Carda 13">Carda 13</option>
+            <option value="Carda 14">Carda 14</option>
+            <option value="Carda 15">Carda 15</option>
+            <option value="Carda 16">Carda 16</option>
+            <option value="Carda 17">Carda 17</option>
+            <option value="Carda 18">Carda 18</option>
+            <option value="Carda 19">Carda 19</option>
+            <option value="Carda 20">Carda 20</option>
+            <option value="Carda 21">Carda 21</option>
+            <option value="Carda 22">Carda 22</option>
+            <option value="Carda 23">Carda 23</option>
+            <option value="Carda 24">Carda 24</option>
+            <option value="Carda 25">Carda 25</option>
+            <option value="Carda 26">Carda 26</option>
+            <option value="Carda 27">Carda 27</option>
+            <option value="Carda 28">Carda 28</option>
+            <option value="Carda 29">Carda 29</option>
+          </optgroup>
 
-        <optgroup label="Open END">
-          <option value="Open END 1">Open END 1</option>
-          <option value="Open END 2">Open END 2</option>
-          <option value="Open END 3">Open END 3</option>
-          <option value="Open END 4">Open END 4</option>
-          <option value="Open END 5">Open END 5</option>
-          <option value="Open END 6">Open END 6</option>
-          <option value="Open END 7">Open END 7</option>
-          <option value="Open END 8">Open END 8</option>
-          <option value="Open END 9">Open END 9</option>
-        </optgroup>
+          <optgroup label="Open END">
+            <option value="Open END 1">Open END 1</option>
+            <option value="Open END 2">Open END 2</option>
+            <option value="Open END 3">Open END 3</option>
+            <option value="Open END 4">Open END 4</option>
+            <option value="Open END 5">Open END 5</option>
+            <option value="Open END 6">Open END 6</option>
+            <option value="Open END 7">Open END 7</option>
+            <option value="Open END 8">Open END 8</option>
+            <option value="Open END 9">Open END 9</option>
+          </optgroup>
 
-        <optgroup label="Passadores">
-          <option value="Passador TD02-1">Passador TD02-1</option>
-          <option value="Passador TD02-2">Passador TD02-2</option>
-          <option value="Passador TD02-3">Passador TD02-3</option>
-          <option value="Passador TD02-4">Passador TD02-4</option>
-          <option value="Passador TD02-5">Passador TD02-5</option>
-          <option value="Passador TD02-6">Passador TD02-6</option>
-          <option value="Passador TD03-1">Passador TD03-1</option>
-          <option value="Passador TD03-2">Passador TD03-2</option>
-          <option value="Passador TD03-3">Passador TD03-3</option>
-          <option value="Passador TD03-4">Passador TD03-4</option>
-          <option value="Passador TD03-5">Passador TD03-5</option>
-          <option value="Passador TD03-6">Passador TD03-6</option>
-        </optgroup>
+          <optgroup label="Passadores">
+            <option value="Passador TD02-1">Passador TD02-1</option>
+            <option value="Passador TD02-2">Passador TD02-2</option>
+            <option value="Passador TD02-3">Passador TD02-3</option>
+            <option value="Passador TD02-4">Passador TD02-4</option>
+            <option value="Passador TD02-5">Passador TD02-5</option>
+            <option value="Passador TD02-6">Passador TD02-6</option>
+            <option value="Passador TD03-1">Passador TD03-1</option>
+            <option value="Passador TD03-2">Passador TD03-2</option>
+            <option value="Passador TD03-3">Passador TD03-3</option>
+            <option value="Passador TD03-4">Passador TD03-4</option>
+            <option value="Passador TD03-5">Passador TD03-5</option>
+            <option value="Passador TD03-6">Passador TD03-6</option>
+          </optgroup>
 
-        <optgroup label="Maçaroqueiras">
-          <option value="Maçaroqueira 1">Maçaroqueira 1</option>
-          <option value="Maçaroqueira 2">Maçaroqueira 2</option>
-          <option value="Maçaroqueira 3">Maçaroqueira 3</option>
-          <option value="Maçaroqueira 4">Maçaroqueira 4</option>
-          <option value="Maçaroqueira 5">Maçaroqueira 5</option>
-          <option value="Maçaroqueira 6">Maçaroqueira 6</option>
-        </optgroup>
+          <optgroup label="Maçaroqueiras">
+            <option value="Maçaroqueira 1">Maçaroqueira 1</option>
+            <option value="Maçaroqueira 2">Maçaroqueira 2</option>
+            <option value="Maçaroqueira 3">Maçaroqueira 3</option>
+            <option value="Maçaroqueira 4">Maçaroqueira 4</option>
+            <option value="Maçaroqueira 5">Maçaroqueira 5</option>
+            <option value="Maçaroqueira 6">Maçaroqueira 6</option>
+          </optgroup>
 
-        <optgroup label="Filatórios">
-          <option value="Filatório 1">Filatório 1</option>
-          <option value="Filatório 2">Filatório 2</option>
-          <option value="Filatório 3">Filatório 3</option>
-          <option value="Filatório 4">Filatório 4</option>
-          <option value="Filatório 5">Filatório 5</option>
-          <option value="Filatório 6">Filatório 6</option>
-          <option value="Filatório 7">Filatório 7</option>
-          <option value="Filatório 8">Filatório 8</option>
-          <option value="Filatório 9">Filatório 9</option>
-          <option value="Filatório 10">Filatório 10</option>
-          <option value="Filatório 11">Filatório 11</option>
-          <option value="Filatório 12">Filatório 12</option>
-          <option value="Filatório 13">Filatório 13</option>
-          <option value="Filatório 14">Filatório 14</option>
-          <option value="Filatório 15">Filatório 15</option>
-          <option value="Filatório 16">Filatório 16</option>
-          <option value="Filatório 17">Filatório 17</option>
-          <option value="Filatório 18">Filatório 18</option>
-          <option value="Filatório 19">Filatório 19</option>
-        </optgroup>
+          <optgroup label="Filatórios">
+            <option value="Filatório 1">Filatório 1</option>
+            <option value="Filatório 2">Filatório 2</option>
+            <option value="Filatório 3">Filatório 3</option>
+            <option value="Filatório 4">Filatório 4</option>
+            <option value="Filatório 5">Filatório 5</option>
+            <option value="Filatório 6">Filatório 6</option>
+            <option value="Filatório 7">Filatório 7</option>
+            <option value="Filatório 8">Filatório 8</option>
+            <option value="Filatório 9">Filatório 9</option>
+            <option value="Filatório 10">Filatório 10</option>
+            <option value="Filatório 11">Filatório 11</option>
+            <option value="Filatório 12">Filatório 12</option>
+            <option value="Filatório 13">Filatório 13</option>
+            <option value="Filatório 14">Filatório 14</option>
+            <option value="Filatório 15">Filatório 15</option>
+            <option value="Filatório 16">Filatório 16</option>
+            <option value="Filatório 17">Filatório 17</option>
+            <option value="Filatório 18">Filatório 18</option>
+            <option value="Filatório 19">Filatório 19</option>
+          </optgroup>
 
-        <optgroup label="Bobinadeiras">
-          <option value="Bobinadeira 1">Bobinadeira 1</option>
-          <option value="Bobinadeira 2">Bobinadeira 2</option>
-          <option value="Bobinadeira 3">Bobinadeira 3</option>
-          <option value="Bobinadeira 4">Bobinadeira 4</option>
-          <option value="Bobinadeira 5">Bobinadeira 5</option>
-          <option value="Bobinadeira 6">Bobinadeira 6</option>
-          <option value="Bobinadeira 7">Bobinadeira 7</option>
-          <option value="Bobinadeira 8">Bobinadeira 8</option>
-          <option value="Bobinadeira 9">Bobinadeira 9</option>
-          <option value="Bobinadeira 10">Bobinadeira 10</option>
-          <option value="Bobinadeira 11">Bobinadeira 11</option>
-          <option value="Bobinadeira 12">Bobinadeira 12</option>
-          <option value="Bobinadeira 13">Bobinadeira 13</option>
-          <option value="Bobinadeira 14">Bobinadeira 14</option>
-          <option value="Bobinadeira 15">Bobinadeira 15</option>
-          <option value="Bobinadeira 16">Bobinadeira 16</option>
-          <option value="Bobinadeira 17">Bobinadeira 17</option>
-          <option value="Bobinadeira 18">Bobinadeira 18</option>
-          <option value="Bobinadeira 19">Bobinadeira 19</option>
-        </optgroup>
+          <optgroup label="Bobinadeiras">
+            <option value="Bobinadeira 1">Bobinadeira 1</option>
+            <option value="Bobinadeira 2">Bobinadeira 2</option>
+            <option value="Bobinadeira 3">Bobinadeira 3</option>
+            <option value="Bobinadeira 4">Bobinadeira 4</option>
+            <option value="Bobinadeira 5">Bobinadeira 5</option>
+            <option value="Bobinadeira 6">Bobinadeira 6</option>
+            <option value="Bobinadeira 7">Bobinadeira 7</option>
+            <option value="Bobinadeira 8">Bobinadeira 8</option>
+            <option value="Bobinadeira 9">Bobinadeira 9</option>
+            <option value="Bobinadeira 10">Bobinadeira 10</option>
+            <option value="Bobinadeira 11">Bobinadeira 11</option>
+            <option value="Bobinadeira 12">Bobinadeira 12</option>
+            <option value="Bobinadeira 13">Bobinadeira 13</option>
+            <option value="Bobinadeira 14">Bobinadeira 14</option>
+            <option value="Bobinadeira 15">Bobinadeira 15</option>
+            <option value="Bobinadeira 16">Bobinadeira 16</option>
+            <option value="Bobinadeira 17">Bobinadeira 17</option>
+            <option value="Bobinadeira 18">Bobinadeira 18</option>
+            <option value="Bobinadeira 19">Bobinadeira 19</option>
+          </optgroup>
 
-        <optgroup label="Binadeiras">
-          <option value="Binadeira 1">Binadeira 1</option>
-          <option value="Binadeira 2">Binadeira 2</option>
-          <option value="Binadeira 3">Binadeira 3</option>
-          <option value="Binadeira 4">Binadeira 4</option>
-        </optgroup>
+          <optgroup label="Binadeiras">
+            <option value="Binadeira 1">Binadeira 1</option>
+            <option value="Binadeira 2">Binadeira 2</option>
+            <option value="Binadeira 3">Binadeira 3</option>
+            <option value="Binadeira 4">Binadeira 4</option>
+          </optgroup>
 
-        <optgroup label="Outros">
-          <option value="Outros / Geral">Outros / Geral</option>
-        </optgroup>
-      </select>
-    </div>
+          <optgroup label="Outros">
+            <option value="Outros / Geral">Outros / Geral</option>
+          </optgroup>
+        </select>
+      </div>
 
-    <div id="historicoBox" class="historico-box">
-      💡 <strong>Última solução registrada:</strong>
-      <div id="historicoTexto">Carregando...</div>
-    </div>
+      <div id="historicoBox" class="historico-box">
+        💡 <strong>Última solução registrada:</strong>
+        <div id="historicoTexto" style="margin-top: 4px;">Carregando...</div>
+      </div>
 
-    <div id="erroBox" class="erro-box"></div>
+      <div id="erroBox" class="erro-box"></div>
 
-    <div class="form-group">
-      <label for="categoria">🏷️ Categoria:</label>
-      <select id="categoria" required>
-        <option value="Corretiva">🛠️ Corretiva</option>
-        <option value="Preventiva">📅 Preventiva</option>
-        <option value="Melhoria">💡 Melhoria</option>
-        <option value="Pendência">⏳ Pendência</option>
-      </select>
-    </div>
+      <div class="form-group">
+        <label for="categoria">🏷️ Categoria</label>
+        <select id="categoria" required>
+          <option value="Corretiva">🛠️ Corretiva</option>
+          <option value="Preventiva">📅 Preventiva</option>
+          <option value="Melhoria">💡 Melhoria</option>
+          <option value="Pendência">⏳ Pendência</option>
+        </select>
+      </div>
 
-    <div class="form-group">
-      <label for="status">🚨 Status Inicial:</label>
-      <select id="status" required>
-        <option value="Aberto">🔴 Aberto</option>
-        <option value="Andamento">🟡 Em Andamento</option>
-        <option value="Concluído">🟢 Concluído</option>
-      </select>
-    </div>
+      <div class="form-group">
+        <label for="status">🚨 Status Inicial</label>
+        <select id="status" required>
+          <option value="Aberto">🔴 Aberto</option>
+          <option value="Andamento">🟡 Em Andamento</option>
+          <option value="Concluído">🟢 Concluído</option>
+        </select>
+      </div>
 
-    <div class="form-group">
-      <label for="descricao">📝 Descrição do Problema/Serviço:</label>
-      <textarea id="descricao" placeholder="Descreva os detalhes aqui..." required></textarea>
-    </div>
+      <div class="form-group">
+        <label for="descricao">📝 Descrição do Problema / Serviço</label>
+        <textarea id="descricao" placeholder="Descreva os detalhes aqui..." required></textarea>
+      </div>
 
-    <!-- Campo de Anexo (Cloudinary Direct) -->
-    <div class="form-group">
-      <label for="inputMidia">📷 Anexar Foto ou Vídeo (Opcional):</label>
-      <input type="file" id="inputMidia" accept="image/*,video/*">
+      <!-- Anexo (Cloudinary Direct) -->
+      <div class="form-group">
+        <label for="inputMidia">📷 Anexar Foto ou Vídeo (Opcional)</label>
+        <input type="file" id="inputMidia" accept="image/*,video/*">
+      </div>
+
     </div>
 
     <button type="submit" id="btnSalvar" class="btn-submit">🚀 Enviar Ocorrência</button>
@@ -371,7 +445,7 @@
       try {
         choicesInstance = new Choices(selectMaquina, {
           searchEnabled: true,
-          searchPlaceholderValue: '🔍 Digite para pesquisar a máquina...',
+          searchPlaceholderValue: '🔍 Pesquisar máquina...',
           searchResultLimit: -1,
           noResultsText: 'Nenhuma máquina encontrada',
           itemSelectText: '',
@@ -465,16 +539,25 @@
         }
       } catch (e) {
         box.style.display = 'none';
-        erroBox.innerHTML = `⚠️ <strong>Aviso:</strong> ${e.message} <button type="button" onclick="buscarHistoricoMaquina('${maquina}')" style="margin-left: 8px; padding: 2px 6px; border: none; border-radius: 4px; cursor: pointer;">🔄 Tentar novamente</button>`;
+        erroBox.innerHTML = `⚠️ <strong>Aviso:</strong> ${e.message} <button type="button" onclick="buscarHistoricoMaquina('${maquina}')" style="margin-left: 8px; padding: 4px 8px; border: none; border-radius: 6px; background: var(--card-border); cursor: pointer;">🔄 Tentar novamente</button>`;
         erroBox.style.display = 'block';
       }
     }
 
-    const fontScale = localStorage.getItem('userFontScale') || 1.1;
-    const theme = localStorage.getItem('userTheme') || 'light';
-    document.documentElement.style.setProperty('--font-scale', fontScale);
-    if (theme === 'black') document.body.classList.add('theme-black');
+    function aplicarPreferencias() {
+      const fontScale = localStorage.getItem('userFontScale') || 1;
+      const theme = localStorage.getItem('userTheme') || 'light';
 
+      document.documentElement.style.setProperty('--font-scale', fontScale);
+
+      if (theme === 'black') {
+        document.body.classList.add('theme-black');
+      } else {
+        document.body.classList.remove('theme-black');
+      }
+    }
+
+    aplicarPreferencias();
     carregarNomeTecnico();
 
     document.getElementById('formOcorrencia').addEventListener('submit', async function(e) {
@@ -485,14 +568,14 @@
       let urlMidia = "";
 
       // Credenciais Cloudinary
-      const cloudName = "ecioeynd";         // Insira seu Cloud Name
-      const uploadPreset = "bot_telegram";   // Insira seu Upload Preset (Unsigned)
+      const cloudName = "ecioeynd";
+      const uploadPreset = "bot_telegram";
 
       btn.disabled = true;
 
       // Se houver arquivo selecionado, faz upload primeiro
       if (fileInput.files.length > 0) {
-        btn.innerText = 'Enviando foto/vídeo...';
+        btn.innerText = '⏳ Enviando mídia...';
 
         const file = fileInput.files[0];
         const isVideo = file.type.startsWith('video/');
@@ -526,7 +609,7 @@
         }
       }
 
-      btn.innerText = 'Gravando ocorrência...';
+      btn.innerText = '⏳ Gravando ocorrência...';
 
       const dados = {
         acao: 'CRIAR_OCORRENCIA',

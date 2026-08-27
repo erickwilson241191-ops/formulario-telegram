@@ -5,26 +5,36 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Configurações</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Configurações do Sistema</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <style>
     :root {
-      --primary-color: #006699;
-      --bg-color: #ffffff;
-      --text-color: #111111;
-      --secondary-bg: #eef2f5;
-      --card-border: #cccccc;
-      --font-scale: 1.1;
+      --primary-color: #0088cc;
+      --bg-color: #f4f5f9;
+      --card-bg: #ffffff;
+      --text-color: #1c1c1e;
+      --text-muted: #8e8e93;
+      --card-border: #e5e5ea;
+      --font-scale: 1;
+
+      --danger: #ff3b30;
+      --warning: #ff9500;
+      --success: #34c759;
     }
 
     body.theme-black {
-      --primary-color: #33b5e5;
       --bg-color: #000000;
+      --card-bg: #1c1c1e;
       --text-color: #ffffff;
-      --secondary-bg: #121212;
-      --card-border: #333333;
+      --text-muted: #8e8e93;
+      --card-border: #2c2c2e;
+    }
+
+    html, body {
+      max-width: 100vw;
+      overflow-x: hidden;
     }
 
     body {
@@ -34,81 +44,66 @@
       margin: 0;
       padding: 16px;
       box-sizing: border-box;
-      font-size: calc(16px * var(--font-scale));
+      font-size: calc(15px * var(--font-scale));
+      -webkit-font-smoothing: antialiased;
     }
 
-    h2 {
-      margin-top: 0;
-      color: var(--primary-color);
-      font-size: calc(20px * var(--font-scale));
-      border-bottom: 2px solid var(--primary-color);
-      padding-bottom: 6px;
-    }
-
-    .config-card {
-      background: var(--secondary-bg);
-      border: 2px solid var(--card-border);
-      border-radius: 12px;
-      padding: 16px;
+    /* BANNER DE CABEÇALHO HERO */
+    .hero-banner {
+      background: linear-gradient(135deg, #0088cc, #005580);
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 20px;
       margin-bottom: 16px;
+      box-shadow: 0 8px 20px rgba(0, 136, 204, 0.2);
+    }
+
+    .hero-banner h1 {
+      font-size: calc(20px * var(--font-scale));
+      font-weight: 800;
+      margin: 0;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-banner p {
+      margin: 6px 0 0 0;
+      font-size: calc(13px * var(--font-scale));
+      opacity: 0.85;
+      font-weight: 500;
+    }
+
+    /* CARDS DE CONFIGURAÇÃO */
+    .config-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
     }
 
     .config-title {
-      font-size: calc(16px * var(--font-scale));
+      font-size: calc(15px * var(--font-scale));
       font-weight: 800;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .config-desc {
-      font-size: calc(13px * var(--font-scale));
-      color: var(--text-color);
-      opacity: 0.8;
+      font-size: calc(12px * var(--font-scale));
+      color: var(--text-muted);
       margin-bottom: 12px;
+      font-weight: 500;
+      line-height: 1.4;
     }
 
-    .theme-options {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .btn-theme {
-      padding: 12px;
-      border-radius: 10px;
-      border: 2px solid var(--card-border);
-      font-weight: bold;
-      font-size: calc(14px * var(--font-scale));
-      cursor: pointer;
-      text-align: center;
-    }
-
-    .btn-theme-light { background: #ffffff; color: #000000; }
-    .btn-theme-black { background: #000000; color: #ffffff; border-color: #555; }
-
-    .btn-theme.active {
-      border: 3px solid var(--primary-color);
-      box-shadow: 0 0 6px var(--primary-color);
-    }
-
-    .font-controls {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .btn-font {
-      flex: 1;
-      padding: 12px;
-      background: var(--primary-color);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: calc(16px * var(--font-scale));
-      cursor: pointer;
-    }
-
-    /* ESTILOS DO TOGGLE SWITCH PARA O RELATÓRIO */
+    /* TOGGLE SWITCH */
     .switch-container {
       display: flex;
       justify-content: space-between;
@@ -118,8 +113,9 @@
     .switch {
       position: relative;
       display: inline-block;
-      width: 50px;
-      height: 26px;
+      width: 52px;
+      height: 28px;
+      flex-shrink: 0;
     }
 
     .switch input {
@@ -132,67 +128,170 @@
       position: absolute;
       cursor: pointer;
       top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc;
-      transition: .3s;
+      background-color: #e5e5ea;
+      transition: .3s ease;
       border-radius: 34px;
     }
 
     .slider:before {
       position: absolute;
       content: "";
-      height: 20px;
-      width: 20px;
+      height: 22px;
+      width: 22px;
       left: 3px;
       bottom: 3px;
       background-color: white;
-      transition: .3s;
+      transition: .3s ease;
       border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
     input:checked + .slider {
-      background-color: #2ea44f;
+      background-color: var(--success);
     }
 
     input:checked + .slider:before {
       transform: translateX(24px);
     }
 
+    /* BOTOES DE TEMA */
+    .theme-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-theme {
+      padding: 12px;
+      border-radius: 12px;
+      border: 2px solid var(--card-border);
+      font-weight: 800;
+      font-size: calc(13px * var(--font-scale));
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .btn-theme-light { background: #ffffff; color: #1c1c1e; }
+    .btn-theme-black { background: #000000; color: #ffffff; border-color: #2c2c2e; }
+
+    .btn-theme.active {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px var(--primary-color);
+    }
+
+    /* CONTROLE DE FONTE */
+    .font-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-font {
+      flex: 1;
+      padding: 12px;
+      background: var(--bg-color);
+      color: var(--text-color);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: calc(13px * var(--font-scale));
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-font:active {
+      background: var(--card-border);
+    }
+
+    /* CAMPOS DE SELEÇÃO E ENTRADA */
+    select, input[type="time"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-size: calc(13px * var(--font-scale));
+      font-weight: 700;
+      outline: none;
+      box-sizing: border-box;
+      margin-top: 6px;
+    }
+
+    /* BOTÃO SALVAR */
     .btn-save {
       width: 100%;
       background-color: var(--primary-color);
       color: #ffffff;
       border: none;
-      padding: 14px;
-      border-radius: 10px;
-      font-size: calc(16px * var(--font-scale));
-      font-weight: bold;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: calc(15px * var(--font-scale));
+      font-weight: 800;
       cursor: pointer;
       margin-top: 10px;
+      box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
+      transition: opacity 0.2s ease;
+    }
+
+    .btn-save:active {
+      opacity: 0.85;
+    }
+
+    .toast-msg {
+      display: none;
+      background-color: var(--success);
+      color: white;
+      text-align: center;
+      padding: 10px;
+      border-radius: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      font-size: calc(13px * var(--font-scale));
     }
   </style>
 </head>
 <body>
 
-  <h2>⚙️ Configurações</h2>
+  <!-- CABEÇALHO DA PÁGINA -->
+  <div class="hero-banner">
+    <h1>⚙️ Configurações</h1>
+    <p>Personalize a interface e as notificações do sistema</p>
+  </div>
+
+  <div id="toast" class="toast-msg">✅ Preferências salvas com sucesso!</div>
+
+  <!-- SESSÃO / TÉCNICO -->
+  <div class="config-card">
+    <div class="config-title">👨‍🔧 Perfil Conectado</div>
+    <div class="config-desc">Usuário ativo identificado na sessão:</div>
+    <input type="text" id="usuarioAtivo" readonly style="opacity: 0.7; cursor: not-allowed;">
+  </div>
 
   <!-- RELATÓRIO DIÁRIO -->
   <div class="config-card">
     <div class="switch-container">
       <div>
-        <div class="config-title">📊 Relatório Diário</div>
-        <div class="config-desc">Enviar resumo diário às 07:00</div>
+        <div class="config-title">📊 Relatório Automático</div>
+        <div class="config-desc">Receber resumo de status no Telegram</div>
       </div>
       <label class="switch">
         <input type="checkbox" id="toggleRelatorio">
         <span class="slider"></span>
       </label>
     </div>
+
+    <div style="margin-top: 12px;">
+      <div class="config-desc" style="margin-bottom: 4px;">Horário preferencial de envio:</div>
+      <input type="time" id="horarioRelatorio" value="07:00">
+    </div>
   </div>
 
   <!-- SELEÇÃO DE TEMA -->
   <div class="config-card">
     <div class="config-title">🎨 Tema Visual</div>
-    <div class="config-desc">Escolha a combinação de cores mais confortável:</div>
+    <div class="config-desc">Escolha a aparência ideal para o ambiente:</div>
     <div class="theme-options">
       <div id="btnThemeLight" class="btn-theme btn-theme-light" onclick="definirTema('light')">☀️ Alto Contraste</div>
       <div id="btnThemeBlack" class="btn-theme btn-theme-black" onclick="definirTema('black')">🌙 Tema Black</div>
@@ -201,12 +300,22 @@
 
   <!-- TAMANHO DO TEXTO -->
   <div class="config-card">
-    <div class="config-title">🔍 Tamanho do Texto</div>
-    <div class="config-desc">Aumente ou diminua as letras do aplicativo:</div>
+    <div class="config-title">🔍 Tamanho da Fonte</div>
+    <div class="config-desc">Ajuste a escala visual dos textos da aplicação:</div>
     <div class="font-controls">
       <button class="btn-font" onclick="alterarFonte(-0.1)">A- Diminuir</button>
       <button class="btn-font" onclick="alterarFonte(0.1)">A+ Aumentar</button>
     </div>
+  </div>
+
+  <!-- IDIOMA E REGIONALIZAÇÃO -->
+  <div class="config-card">
+    <div class="config-title">🌐 Idioma / Regional</div>
+    <div class="config-desc">Defina a preferência de linguagem do sistema:</div>
+    <select id="selectIdioma">
+      <option value="pt-BR" selected>🇧🇷 Português (Brasil)</option>
+      <option value="en-US">🇺🇸 English (US)</option>
+    </select>
   </div>
 
   <button class="btn-save" onclick="salvarConfiguracoes()">💾 Salvar Configurações</button>
@@ -215,19 +324,22 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // BOTÃO VOLTAR NATIVO DO TELEGRAM
-    tg.BackButton.show();
-    tg.BackButton.onClick(function() {
-      window.location.href = 'index.html';
-    });
+    if (tg.BackButton) {
+      tg.BackButton.show();
+      tg.BackButton.onClick(function() {
+        window.location.href = 'index.html';
+      });
+    }
 
-    let fontScale = parseFloat(localStorage.getItem('userFontScale')) || 1.1;
+    let fontScale = parseFloat(localStorage.getItem('userFontScale')) || 1;
     let currentTheme = localStorage.getItem('userTheme') || 'light';
 
-    // Lê variável vinda do parâmetro URL enviado pelo Python (?relatorio=true/false)
     const urlParams = new URLSearchParams(window.location.search);
     const relatorioStatus = urlParams.get('relatorio');
-    
+    const tecnicoLogado = urlParams.get('tecnico') || 'Não identificado';
+
+    document.getElementById('usuarioAtivo').value = tecnicoLogado;
+
     if (relatorioStatus !== null) {
       document.getElementById('toggleRelatorio').checked = (relatorioStatus === 'true');
     }
@@ -253,20 +365,28 @@
     }
 
     function alterarFonte(delta) {
-      fontScale = Math.min(Math.max(fontScale + delta, 0.9), 1.5);
+      fontScale = Math.min(Math.max(fontScale + delta, 0.8), 1.4);
       localStorage.setItem('userFontScale', fontScale);
       aplicarPreferencias();
     }
 
     function salvarConfiguracoes() {
       const isRelatorioAtivo = document.getElementById('toggleRelatorio').checked;
+      const horario = document.getElementById('horarioRelatorio').value;
+      const idioma = document.getElementById('selectIdioma').value;
 
       const payload = {
         acao: "ATUALIZAR_CONFIGS",
-        relatorioAtivo: isRelatorioAtivo
+        relatorioAtivo: isRelatorioAtivo,
+        horarioRelatorio: horario,
+        idioma: idioma,
+        tecnico: tecnicoLogado
       };
 
-      // Envia a configuração salva para o Bot via Telegram WebApp
+      const toast = document.getElementById('toast');
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+
       tg.sendData(JSON.stringify(payload));
     }
 

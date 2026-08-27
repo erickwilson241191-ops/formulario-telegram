@@ -205,7 +205,7 @@
     }
 
     /* CAMPOS DE SELEÇÃO E ENTRADA */
-    select, input[type="time"] {
+    select, input[type="text"], input[type="time"] {
       width: 100%;
       padding: 12px;
       border: 1px solid var(--card-border);
@@ -244,11 +244,12 @@
       background-color: var(--success);
       color: white;
       text-align: center;
-      padding: 10px;
+      padding: 12px;
       border-radius: 12px;
       font-weight: 700;
       margin-bottom: 12px;
       font-size: calc(13px * var(--font-scale));
+      box-shadow: 0 4px 10px rgba(52, 199, 89, 0.2);
     }
   </style>
 </head>
@@ -260,13 +261,13 @@
     <p>Personalize a interface e as notificações do sistema</p>
   </div>
 
-  <div id="toast" class="toast-msg">✅ Preferências salvas com sucesso!</div>
+  <div id="toast" class="toast-msg">✅ Configurações salvas com sucesso!</div>
 
   <!-- SESSÃO / TÉCNICO -->
   <div class="config-card">
     <div class="config-title">👨‍🔧 Perfil Conectado</div>
     <div class="config-desc">Usuário ativo identificado na sessão:</div>
-    <input type="text" id="usuarioAtivo" readonly style="opacity: 0.7; cursor: not-allowed;">
+    <input type="text" id="usuarioAtivo" placeholder="Carregando perfil...">
   </div>
 
   <!-- RELATÓRIO DIÁRIO -->
@@ -333,15 +334,46 @@
 
     let fontScale = parseFloat(localStorage.getItem('userFontScale')) || 1;
     let currentTheme = localStorage.getItem('userTheme') || 'light';
+    let tecnicoLogado = '';
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const relatorioStatus = urlParams.get('relatorio');
-    const tecnicoLogado = urlParams.get('tecnico') || 'Não identificado';
+    // IDENTIFICAÇÃO DO USUÁRIO DETECTADO
+    function carregarUsuario() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramTecnico = urlParams.get('tecnico');
 
-    document.getElementById('usuarioAtivo').value = tecnicoLogado;
+      if (paramTecnico && paramTecnico.trim() !== '') {
+        tecnicoLogado = paramTecnico;
+      } else if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        tecnicoLogado = tg.initDataUnsafe.user.first_name + (tg.initDataUnsafe.user.last_name ? ' ' + tg.initDataUnsafe.user.last_name : '');
+      } else {
+        tecnicoLogado = localStorage.getItem('userTecnico') || 'Técnico Não Identificado';
+      }
 
-    if (relatorioStatus !== null) {
-      document.getElementById('toggleRelatorio').checked = (relatorioStatus === 'true');
+      document.getElementById('usuarioAtivo').value = tecnicoLogado;
+    }
+
+    // CARREGAR CONFIGURAÇÕES LOCALMENTE
+    function carregarConfiguracoesSalvas() {
+      const relatorioSalvo = localStorage.getItem('userRelatorioAtivo');
+      const horarioSalvo = localStorage.getItem('userHorarioRelatorio');
+      const idiomaSalvo = localStorage.getItem('userIdioma');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const relatorioParam = urlParams.get('relatorio');
+
+      if (relatorioParam !== null) {
+        document.getElementById('toggleRelatorio').checked = (relatorioParam === 'true');
+      } else if (relatorioSalvo !== null) {
+        document.getElementById('toggleRelatorio').checked = (relatorioSalvo === 'true');
+      }
+
+      if (horarioSalvo) {
+        document.getElementById('horarioRelatorio').value = horarioSalvo;
+      }
+
+      if (idiomaSalvo) {
+        document.getElementById('selectIdioma').value = idiomaSalvo;
+      }
     }
 
     function aplicarPreferencias() {
@@ -371,25 +403,43 @@
     }
 
     function salvarConfiguracoes() {
+      const usuarioEditado = document.getElementById('usuarioAtivo').value.trim();
       const isRelatorioAtivo = document.getElementById('toggleRelatorio').checked;
       const horario = document.getElementById('horarioRelatorio').value;
       const idioma = document.getElementById('selectIdioma').value;
 
+      // 1. SALVAR NO NAVEGADOR (LOCALSTORAGE)
+      localStorage.setItem('userTecnico', usuarioEditado);
+      localStorage.setItem('userRelatorioAtivo', isRelatorioAtivo);
+      localStorage.setItem('userHorarioRelatorio', horario);
+      localStorage.setItem('userIdioma', idioma);
+      localStorage.setItem('userTheme', currentTheme);
+      localStorage.setItem('userFontScale', fontScale);
+
+      // 2. EXIBIR FEEDBACK NA TELA
+      const toast = document.getElementById('toast');
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+
+      // 3. ENVIAR PARA O TELEGRAM (SE SUPORTADO)
       const payload = {
         acao: "ATUALIZAR_CONFIGS",
         relatorioAtivo: isRelatorioAtivo,
         horarioRelatorio: horario,
         idioma: idioma,
-        tecnico: tecnicoLogado
+        tecnico: usuarioEditado
       };
 
-      const toast = document.getElementById('toast');
-      toast.style.display = 'block';
-      setTimeout(() => { toast.style.display = 'none'; }, 3000);
-
-      tg.sendData(JSON.stringify(payload));
+      try {
+        tg.sendData(JSON.stringify(payload));
+      } catch (e) {
+        console.log("sendData ignorado por conta do tipo de abertura do WebApp.");
+      }
     }
 
+    // INICIALIZAÇÃO DA PÁGINA
+    carregarUsuario();
+    carregarConfiguracoesSalvas();
     aplicarPreferencias();
   </script>
 </body>

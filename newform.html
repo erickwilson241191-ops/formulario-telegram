@@ -127,7 +127,7 @@
     }
 
     input[readonly] {
-      opacity: 0.7;
+      opacity: 0.8;
       cursor: not-allowed;
     }
 
@@ -434,7 +434,8 @@
     if (tg.BackButton) {
       tg.BackButton.show();
       tg.BackButton.onClick(function() {
-        window.location.href = 'index.html';
+        const tecnicoAtual = localStorage.getItem('userTecnico') || 'Técnico';
+        window.location.href = `index.html?tecnico=${encodeURIComponent(tecnicoAtual)}`;
       });
     }
 
@@ -468,22 +469,42 @@
 
     function carregarNomeTecnico() {
       const urlParams = new URLSearchParams(window.location.search);
-      const nomeUrl = urlParams.get('tecnico') || urlParams.get('nome');
-      const userTelegram = tg.initDataUnsafe?.user;
-      
+      let paramTecnico = urlParams.get('tecnico') || urlParams.get('nome');
+
+      // Limpa valores de fallback inválidos
+      if (['None', 'null', 'undefined', 'Técnico Não Identificado', ''].includes(paramTecnico)) {
+        paramTecnico = null;
+      }
+
+      // Busca dados gravados na sessão ou Telegram
+      const tecnicoSalvo = localStorage.getItem('userTecnico') || localStorage.getItem('userCustomName');
+      const userTelegram = window.Telegram?.WebApp?.initDataUnsafe?.user;
       let nomeTelegram = '';
       if (userTelegram) {
         nomeTelegram = `${userTelegram.first_name || ''} ${userTelegram.last_name || ''}`.trim() || userTelegram.username;
       }
 
-      const nomeCustom = localStorage.getItem('userCustomName');
-      const nomeSalvo = localStorage.getItem('userTelegramName');
-      const nomeFinal = nomeCustom || nomeUrl || nomeTelegram || nomeSalvo || 'Técnico';
-      
+      // Define hierarquia unificada
+      let nomeFinal = "Técnico";
+
+      if (paramTecnico) {
+        nomeFinal = decodeURIComponent(paramTecnico);
+      } else if (tecnicoSalvo && !['None', 'null', 'undefined', 'Técnico Não Identificado'].includes(tecnicoSalvo)) {
+        nomeFinal = tecnicoSalvo;
+      } else if (nomeTelegram) {
+        nomeFinal = nomeTelegram;
+      }
+
+      // Garante a gravação no celular
+      localStorage.setItem('userTecnico', nomeFinal);
+
       const campoTecnico = document.getElementById('tecnico');
       campoTecnico.value = nomeFinal;
+
       if (nomeFinal === 'Técnico') {
         campoTecnico.removeAttribute('readonly');
+      } else {
+        campoTecnico.setAttribute('readonly', 'true');
       }
     }
 

@@ -72,19 +72,10 @@
       font-weight: 500;
     }
 
-    /* CONTAINER DOS BOTÕES LADO A LADO */
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-left: 12px;
-      flex-shrink: 0;
-    }
-
-    /* BOTÃO REDONDO (AÇÕES DO CABEÇALHO) */
-    .action-circle-btn {
-      width: 48px;
-      height: 48px;
+    /* BOTÃO DE PERFIL (MANDA PARA CONFIG.HTML) */
+    .profile-avatar-btn {
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       border: 2px solid rgba(255, 255, 255, 0.8);
       background-color: rgba(255, 255, 255, 0.25);
@@ -95,19 +86,24 @@
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       transition: transform 0.2s ease, border-color 0.2s ease;
-      color: #ffffff;
-      font-size: calc(18px * var(--font-scale));
-      font-weight: 800;
+      flex-shrink: 0;
+      margin-left: 12px;
     }
 
-    .action-circle-btn:active {
+    .profile-avatar-btn:active {
       transform: scale(0.92);
     }
 
-    .action-circle-btn img {
+    .profile-avatar-btn img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+
+    .profile-avatar-btn span {
+      color: #ffffff;
+      font-weight: 800;
+      font-size: calc(18px * var(--font-scale));
     }
 
     /* TÍTULOS DE SEÇÃO */
@@ -291,14 +287,9 @@
         <p class="subtitle">Central de Gestão e Manutenção</p>
       </div>
 
-      <!-- BOTÕES DE CONFIGURAÇÕES E PERFIL LADO A LADO -->
-      <div class="header-actions">
-        <button class="action-circle-btn" onclick="navegarPara('config.html')" title="Configurações">
-          ⚙️
-        </button>
-        <button class="action-circle-btn" id="btnPerfil" onclick="navegarPara('perfil.html')" title="Perfil do Técnico">
-          <span>👤</span>
-        </button>
+      <!-- BOTÃO DE PERFIL REDIRECIONANDO PARA CONFIG.HTML -->
+      <div class="profile-avatar-btn" id="btnPerfil" onclick="navegarPara('config.html')" title="Perfil e Configurações">
+        <span>👤</span>
       </div>
     </div>
   </div>

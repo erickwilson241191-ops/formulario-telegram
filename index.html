@@ -360,73 +360,57 @@
     tg.expand();
 
     function carregarUsuario() {
-      const urlParams = new URLSearchParams(window.location.search);
-      let paramTecnico = urlParams.get('tecnico') || urlParams.get('nome');
-      let paramFoto = urlParams.get('foto'); // <-- Capta o parâmetro de foto Base64 enviado pelo Bot
+  const urlParams = new URLSearchParams(window.location.search);
+  let paramTecnico = urlParams.get('tecnico') || urlParams.get('nome');
 
-      // Limpa valores de fallback inválidos
-      if (['None', 'null', 'undefined', 'Técnico Não Identificado', ''].includes(paramTecnico)) {
-        paramTecnico = null;
-      }
+  // Limpa fallbacks inválidos
+  if (['None', 'null', 'undefined', 'Técnico Não Identificado', ''].includes(paramTecnico)) {
+    paramTecnico = null;
+  }
 
-      // Chaves salvas anteriormente no celular
-      const tecnicoSalvo = localStorage.getItem('userTecnico') || localStorage.getItem('userCustomName');
+  // Dados armazenados localmente
+  const tecnicoSalvo = localStorage.getItem('userTecnico') || localStorage.getItem('userCustomName');
 
-      // Telegram Nativo
-      const userTelegram = window.Telegram?.WebApp?.initDataUnsafe?.user;
-      let nomeTelegram = '';
-      if (userTelegram) {
-        nomeTelegram = `${userTelegram.first_name || ''} ${userTelegram.last_name || ''}`.trim() || userTelegram.username;
-      }
+  // Objeto de dados do Telegram WebApp
+  const userTelegram = window.Telegram?.WebApp?.initDataUnsafe?.user;
+  
+  let nomeTelegram = '';
+  let fotoTelegram = '';
 
-      // Define hierarquia de prioridades
-      let nomeFinal = "Técnico";
+  if (userTelegram) {
+    nomeTelegram = `${userTelegram.first_name || ''} ${userTelegram.last_name || ''}`.trim() || userTelegram.username;
+    // O Telegram disponibiliza diretamente a URL da foto de perfil:
+    fotoTelegram = userTelegram.photo_url || '';
+  }
 
-      if (paramTecnico) {
-        nomeFinal = decodeURIComponent(paramTecnico);
-      } else if (tecnicoSalvo && !['None', 'null', 'undefined', 'Técnico Não Identificado'].includes(tecnicoSalvo)) {
-        nomeFinal = tecnicoSalvo;
-      } else if (nomeTelegram) {
-        nomeFinal = nomeTelegram;
-      }
+  // Definição do nome com base em prioridade
+  let nomeFinal = "Técnico";
 
-      // Salva no localStorage para manter entre todas as páginas
-      localStorage.setItem('userTecnico', nomeFinal);
+  if (paramTecnico) {
+    nomeFinal = decodeURIComponent(paramTecnico);
+  } else if (tecnicoSalvo && !['None', 'null', 'undefined', 'Técnico Não Identificado'].includes(tecnicoSalvo)) {
+    nomeFinal = tecnicoSalvo;
+  } else if (nomeTelegram) {
+    nomeFinal = nomeTelegram;
+  }
 
-      // Exibe a saudação na tela
-      document.getElementById('userName').innerText = `Olá, ${nomeFinal}! 👋`;
+  // Persiste o nome no navegador
+  localStorage.setItem('userTecnico', nomeFinal);
+  document.getElementById('userName').innerText = `Olá, ${nomeFinal}! 👋`;
 
-      // Carrega a foto de perfil recebida via URL (Base64) ou fallbacks
-      const avatarBtn = document.getElementById('btnPerfil');
-      if (avatarBtn) {
-        if (paramFoto && paramFoto !== 'None' && paramFoto !== 'null') {
-          // Exibe a imagem codificada em Base64 enviada pelo Python
-          avatarBtn.innerHTML = `<img src="${decodeURIComponent(paramFoto)}" alt="Perfil">`;
-        } else if (userTelegram && userTelegram.photo_url) {
-          avatarBtn.innerHTML = `<img src="${userTelegram.photo_url}" alt="Perfil">`;
-        } else if (nomeFinal && nomeFinal !== 'Técnico') {
-          const inicial = nomeFinal.charAt(0).toUpperCase();
-          avatarBtn.innerHTML = `<span>${inicial}</span>`;
-        } else {
-          avatarBtn.innerHTML = `<span>👤</span>`;
-        }
-      }
+  // Renderiza a foto do perfil
+  const avatarBtn = document.getElementById('btnPerfil');
+  if (avatarBtn) {
+    if (fotoTelegram) {
+      avatarBtn.innerHTML = `<img src="${fotoTelegram}" alt="Perfil" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+    } else if (nomeFinal && nomeFinal !== 'Técnico') {
+      const inicial = nomeFinal.charAt(0).toUpperCase();
+      avatarBtn.innerHTML = `<span>${inicial}</span>`;
+    } else {
+      avatarBtn.innerHTML = `<span>👤</span>`;
     }
-
-    carregarUsuario();
-
-    function aplicarPreferencias() {
-      const fontScale = localStorage.getItem('userFontScale') || 1;
-      const theme = localStorage.getItem('userTheme') || 'light';
-
-      document.documentElement.style.setProperty('--font-scale', fontScale);
-
-      if (theme === 'black') {
-        document.body.classList.add('theme-black');
-      } else {
-        document.body.classList.remove('theme-black');
-      }
-    }
+  }
+}
 
     function navegarPara(pagina) {
       const tecnicoAtual = localStorage.getItem('userTecnico') || 'Técnico';

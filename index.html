@@ -340,16 +340,34 @@
 
     function carregarUsuario() {
       const urlParams = new URLSearchParams(window.location.search);
-      const nomeUrl = urlParams.get('tecnico') || urlParams.get('nome');
-      const userTelegram = window.Telegram.WebApp.initDataUnsafe?.user?.first_name;
-      const nomeConfig = localStorage.getItem('userCustomName');
+      let paramTecnico = urlParams.get('tecnico') || urlParams.get('nome');
 
-      const nomeFinal = nomeConfig || nomeUrl || userTelegram || 'Técnico';
-
-      if (nomeUrl || userTelegram) {
-        localStorage.setItem('userTelegramName', nomeUrl || userTelegram);
+      // Limpa valores de fallback inválidos
+      if (['None', 'null', 'undefined', 'Técnico Não Identificado', ''].includes(paramTecnico)) {
+        paramTecnico = null;
       }
 
+      // Chaves salvas anteriormente no celular
+      const tecnicoSalvo = localStorage.getItem('userTecnico') || localStorage.getItem('userCustomName');
+
+      // Telegram Nativo
+      const userTelegram = window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name;
+
+      // Define hierarquia de prioridades
+      let nomeFinal = "Técnico";
+
+      if (paramTecnico) {
+        nomeFinal = decodeURIComponent(paramTecnico);
+      } else if (tecnicoSalvo && !['None', 'null', 'undefined', 'Técnico Não Identificado'].includes(tecnicoSalvo)) {
+        nomeFinal = tecnicoSalvo;
+      } else if (userTelegram) {
+        nomeFinal = userTelegram;
+      }
+
+      // Salva no localStorage para manter entre todas as páginas
+      localStorage.setItem('userTecnico', nomeFinal);
+
+      // Exibe na tela
       document.getElementById('userName').innerText = `Olá, ${nomeFinal}! 👋`;
     }
 
@@ -368,9 +386,17 @@
       }
     }
 
-    function navegarPara(pagina) { window.location.href = pagina; }
+    function navegarPara(pagina) {
+      const tecnicoAtual = localStorage.getItem('userTecnico') || 'Técnico';
+      window.location.href = `${pagina}?tecnico=${encodeURIComponent(tecnicoAtual)}`;
+    }
+
     function fecharTelegram() { tg.close(); }
-    function filtrarPorStatus(status) { window.location.href = `buscar.html?status=${status}`; }
+
+    function filtrarPorStatus(status) {
+      const tecnicoAtual = localStorage.getItem('userTecnico') || 'Técnico';
+      window.location.href = `buscar.html?status=${status}&tecnico=${encodeURIComponent(tecnicoAtual)}`;
+    }
 
     const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
     const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;

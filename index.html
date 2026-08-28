@@ -373,20 +373,24 @@
     function carregarUsuario() {
       const urlParams = new URLSearchParams(window.location.search);
       let paramTecnico = urlParams.get('tecnico') || urlParams.get('nome');
+      let paramFoto = urlParams.get('foto');
 
       if (['None', 'null', 'undefined', 'Técnico Não Identificado', ''].includes(paramTecnico)) {
         paramTecnico = null;
+      }
+
+      if (['None', 'null', 'undefined', ''].includes(paramFoto)) {
+        paramFoto = null;
       }
 
       const tecnicoSalvo = localStorage.getItem('userTecnico') || localStorage.getItem('userCustomName');
       const userTelegram = window.Telegram?.WebApp?.initDataUnsafe?.user;
       
       let nomeTelegram = '';
-      let fotoTelegram = '';
+      let fotoTelegram = userTelegram?.photo_url || null;
 
       if (userTelegram) {
         nomeTelegram = `${userTelegram.first_name || ''} ${userTelegram.last_name || ''}`.trim() || userTelegram.username;
-        fotoTelegram = userTelegram.photo_url || '';
       }
 
       let nomeFinal = "Técnico";
@@ -405,8 +409,31 @@
 
       const avatarBtn = document.getElementById('btnPerfil');
       if (avatarBtn) {
-        if (fotoTelegram) {
-          avatarBtn.innerHTML = `<img src="${fotoTelegram}" alt="Perfil" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+        let urlFotoFinal = null;
+
+        if (paramFoto) {
+          urlFotoFinal = decodeURIComponent(paramFoto);
+        } else if (fotoTelegram) {
+          urlFotoFinal = fotoTelegram;
+        }
+
+        if (urlFotoFinal) {
+          const img = document.createElement('img');
+          img.src = urlFotoFinal;
+          img.alt = "Perfil";
+          img.style.width = "100%";
+          img.style.height = "100%";
+          img.style.objectFit = "cover";
+          img.style.borderRadius = "50%";
+
+          // Se a imagem falhar ao carregar, exibe a inicial do nome
+          img.onerror = function() {
+            const inicial = nomeFinal !== 'Técnico' ? nomeFinal.charAt(0).toUpperCase() : '👤';
+            avatarBtn.innerHTML = `<span>${inicial}</span>`;
+          };
+
+          avatarBtn.innerHTML = '';
+          avatarBtn.appendChild(img);
         } else if (nomeFinal && nomeFinal !== 'Técnico') {
           const inicial = nomeFinal.charAt(0).toUpperCase();
           avatarBtn.innerHTML = `<span>${inicial}</span>`;

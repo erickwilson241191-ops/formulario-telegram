@@ -72,10 +72,19 @@
       font-weight: 500;
     }
 
-    /* BOTÃO COM FOTO DE PERFIL DO TELEGRAM */
-    .profile-avatar-btn {
-      width: 52px;
-      height: 52px;
+    /* CONTAINER DOS BOTÕES LADO A LADO */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: 12px;
+      flex-shrink: 0;
+    }
+
+    /* BOTÃO REDONDO (AÇÕES DO CABEÇALHO) */
+    .action-circle-btn {
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       border: 2px solid rgba(255, 255, 255, 0.8);
       background-color: rgba(255, 255, 255, 0.25);
@@ -86,27 +95,22 @@
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       transition: transform 0.2s ease, border-color 0.2s ease;
-      flex-shrink: 0;
-      margin-left: 12px;
+      color: #ffffff;
+      font-size: calc(18px * var(--font-scale));
+      font-weight: 800;
     }
 
-    .profile-avatar-btn:active {
+    .action-circle-btn:active {
       transform: scale(0.92);
     }
 
-    .profile-avatar-btn img {
+    .action-circle-btn img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .profile-avatar-btn span {
-      color: #ffffff;
-      font-weight: 800;
-      font-size: calc(18px * var(--font-scale));
-    }
-
-    /* TÍTULOS DE SEÇÃO SEÇÃO DE ESTILO MODERNIZADO */
+    /* TÍTULOS DE SEÇÃO */
     .section-title {
       font-size: calc(13px * var(--font-scale));
       font-weight: 700;
@@ -287,9 +291,14 @@
         <p class="subtitle">Central de Gestão e Manutenção</p>
       </div>
 
-      <!-- BOTÃO DA FOTO DE PERFIL -->
-      <div class="profile-avatar-btn" id="btnPerfil" onclick="navegarPara('perfil.html')" title="Perfil e Configurações">
-        <span id="avatarPlaceholder">👤</span>
+      <!-- BOTÕES DE CONFIGURAÇÕES E PERFIL LADO A LADO -->
+      <div class="header-actions">
+        <button class="action-circle-btn" onclick="navegarPara('config.html')" title="Configurações">
+          ⚙️
+        </button>
+        <button class="action-circle-btn" id="btnPerfil" onclick="navegarPara('perfil.html')" title="Perfil do Técnico">
+          <span>👤</span>
+        </button>
       </div>
     </div>
   </div>
@@ -395,7 +404,7 @@
       // Exibe a saudação na tela
       document.getElementById('userName').innerText = `Olá, ${nomeFinal}! 👋`;
 
-      // Carrega foto de perfil do Telegram ou inicial (Garantido para todos os casos)
+      // Carrega foto de perfil do Telegram ou inicial
       const avatarBtn = document.getElementById('btnPerfil');
       if (avatarBtn) {
         if (userTelegram && userTelegram.photo_url) {

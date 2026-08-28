@@ -337,21 +337,43 @@
     let tecnicoLogado = '';
 
     // IDENTIFICAÇÃO DO USUÁRIO DETECTADO
-    function carregarUsuario() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const paramTecnico = urlParams.get('tecnico');
+    // IDENTIFICAÇÃO ROBUSTA DO TÉCNICO
+function carregarUsuario() {
+  const urlParams = new URLSearchParams(window.location.search);
+  let paramTecnico = urlParams.get('tecnico');
+  
+  // Limpa strings inválidas vindas da URL
+  if (paramTecnico === 'None' || paramTecnico === 'null' || paramTecnico === 'undefined' || paramTecnico === 'Técnico Não Identificado') {
+    paramTecnico = null;
+  }
 
-      if (paramTecnico && paramTecnico.trim() !== '') {
-        tecnicoLogado = paramTecnico;
-      } else if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        tecnicoLogado = tg.initDataUnsafe.user.first_name + (tg.initDataUnsafe.user.last_name ? ' ' + tg.initDataUnsafe.user.last_name : '');
-      } else {
-        tecnicoLogado = localStorage.getItem('userTecnico') || 'Técnico Não Identificado';
-      }
+  // 1ª Tentativa: Dados salvos anteriormente no dispositivo
+  const tecnicoSalvo = localStorage.getItem('userTecnico');
 
-      document.getElementById('usuarioAtivo').value = tecnicoLogado;
-    }
+  // 2ª Tentativa: Perfil do Telegram nativo (se disponível)
+  let tecnicoTelegram = '';
+  if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+    const u = window.Telegram.WebApp.initDataUnsafe.user;
+    tecnicoTelegram = u.first_name + (u.last_name ? ' ' + u.last_name : '');
+  }
 
+  // Define a hierarquia de prioridade
+  if (paramTecnico && paramTecnico.trim() !== '') {
+    tecnicoLogado = decodeURIComponent(paramTecnico);
+  } else if (tecnicoSalvo && tecnicoSalvo.trim() !== '') {
+    tecnicoLogado = tecnicoSalvo;
+  } else if (tecnicoTelegram && tecnicoTelegram.trim() !== '') {
+    tecnicoLogado = tecnicoTelegram;
+  } else {
+    tecnicoLogado = "Técnico"; // Fallback limpo sem a palavra "Não Identificado"
+  }
+
+  // Preenche o campo na tela
+  const inputUser = document.getElementById('usuarioAtivo');
+  if (inputUser) {
+    inputUser.value = tecnicoLogado;
+  }
+}
     // CARREGAR CONFIGURAÇÕES LOCALMENTE
     function carregarConfiguracoesSalvas() {
       const relatorioSalvo = localStorage.getItem('userRelatorioAtivo');

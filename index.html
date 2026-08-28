@@ -72,7 +72,7 @@
       font-weight: 500;
     }
 
-    /* BOTÃO DE PERFIL (MANDA PARA CONFIG.HTML) */
+    /* BOTÃO DE PERFIL */
     .profile-avatar-btn {
       width: 52px;
       height: 52px;
@@ -287,7 +287,7 @@
         <p class="subtitle">Central de Gestão e Manutenção</p>
       </div>
 
-      <!-- BOTÃO DE PERFIL REDIRECIONANDO PARA CONFIG.HTML -->
+      <!-- BOTÃO DE PERFIL -->
       <div class="profile-avatar-btn" id="btnPerfil" onclick="navegarPara('config.html')" title="Perfil e Configurações">
         <span>👤</span>
       </div>
@@ -354,66 +354,8 @@
   </button>
 
   <script>
-    const tg = window.Telegram.WebApp;
-
-    // Força a expansão do aplicativo
-    tg.expand();
-
-    function carregarUsuario() {
-      const urlParams = new URLSearchParams(window.location.search);
-      let paramTecnico = urlParams.get('tecnico') || urlParams.get('nome');
-      let paramFoto = urlParams.get('foto'); // <-- Capta o parâmetro de foto Base64 enviado pelo Bot
-
-      // Limpa valores de fallback inválidos
-      if (['None', 'null', 'undefined', 'Técnico Não Identificado', ''].includes(paramTecnico)) {
-        paramTecnico = null;
-      }
-
-      // Chaves salvas anteriormente no celular
-      const tecnicoSalvo = localStorage.getItem('userTecnico') || localStorage.getItem('userCustomName');
-
-      // Telegram Nativo
-      const userTelegram = window.Telegram?.WebApp?.initDataUnsafe?.user;
-      let nomeTelegram = '';
-      if (userTelegram) {
-        nomeTelegram = `${userTelegram.first_name || ''} ${userTelegram.last_name || ''}`.trim() || userTelegram.username;
-      }
-
-      // Define hierarquia de prioridades
-      let nomeFinal = "Técnico";
-
-      if (paramTecnico) {
-        nomeFinal = decodeURIComponent(paramTecnico);
-      } else if (tecnicoSalvo && !['None', 'null', 'undefined', 'Técnico Não Identificado'].includes(tecnicoSalvo)) {
-        nomeFinal = tecnicoSalvo;
-      } else if (nomeTelegram) {
-        nomeFinal = nomeTelegram;
-      }
-
-      // Salva no localStorage para manter entre todas as páginas
-      localStorage.setItem('userTecnico', nomeFinal);
-
-      // Exibe a saudação na tela
-      document.getElementById('userName').innerText = `Olá, ${nomeFinal}! 👋`;
-
-      // Carrega a foto de perfil recebida via URL (Base64) ou fallbacks
-      const avatarBtn = document.getElementById('btnPerfil');
-      if (avatarBtn) {
-        if (paramFoto && paramFoto !== 'None' && paramFoto !== 'null') {
-          // Exibe a imagem codificada em Base64 enviada pelo Python
-          avatarBtn.innerHTML = `<img src="${decodeURIComponent(paramFoto)}" alt="Perfil">`;
-        } else if (userTelegram && userTelegram.photo_url) {
-          avatarBtn.innerHTML = `<img src="${userTelegram.photo_url}" alt="Perfil">`;
-        } else if (nomeFinal && nomeFinal !== 'Técnico') {
-          const inicial = nomeFinal.charAt(0).toUpperCase();
-          avatarBtn.innerHTML = `<span>${inicial}</span>`;
-        } else {
-          avatarBtn.innerHTML = `<span>👤</span>`;
-        }
-      }
-    }
-
-    carregarUsuario();
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.expand(); }
 
     function aplicarPreferencias() {
       const fontScale = localStorage.getItem('userFontScale') || 1;
@@ -428,52 +370,101 @@
       }
     }
 
-    function navegarPara(pagina) {
-      const tecnicoAtual = localStorage.getItem('userTecnico') || 'Técnico';
+    function carregarUsuario() {
       const urlParams = new URLSearchParams(window.location.search);
-      const fotoAtual = urlParams.get('foto') || '';
+      let paramTecnico = urlParams.get('tecnico') || urlParams.get('nome');
+
+      if (['None', 'null', 'undefined', 'Técnico Não Identificado', ''].includes(paramTecnico)) {
+        paramTecnico = null;
+      }
+
+      const tecnicoSalvo = localStorage.getItem('userTecnico') || localStorage.getItem('userCustomName');
+      const userTelegram = window.Telegram?.WebApp?.initDataUnsafe?.user;
       
-      window.location.href = `${pagina}?tecnico=${encodeURIComponent(tecnicoAtual)}&foto=${encodeURIComponent(fotoAtual)}`;
+      let nomeTelegram = '';
+      let fotoTelegram = '';
+
+      if (userTelegram) {
+        nomeTelegram = `${userTelegram.first_name || ''} ${userTelegram.last_name || ''}`.trim() || userTelegram.username;
+        fotoTelegram = userTelegram.photo_url || '';
+      }
+
+      let nomeFinal = "Técnico";
+
+      if (paramTecnico) {
+        nomeFinal = decodeURIComponent(paramTecnico);
+      } else if (tecnicoSalvo && !['None', 'null', 'undefined', 'Técnico Não Identificado'].includes(tecnicoSalvo)) {
+        nomeFinal = tecnicoSalvo;
+      } else if (nomeTelegram) {
+        nomeFinal = nomeTelegram;
+      }
+
+      localStorage.setItem('userTecnico', nomeFinal);
+      const elemName = document.getElementById('userName');
+      if (elemName) elemName.innerText = `Olá, ${nomeFinal}! 👋`;
+
+      const avatarBtn = document.getElementById('btnPerfil');
+      if (avatarBtn) {
+        if (fotoTelegram) {
+          avatarBtn.innerHTML = `<img src="${fotoTelegram}" alt="Perfil" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+        } else if (nomeFinal && nomeFinal !== 'Técnico') {
+          const inicial = nomeFinal.charAt(0).toUpperCase();
+          avatarBtn.innerHTML = `<span>${inicial}</span>`;
+        } else {
+          avatarBtn.innerHTML = `<span>👤</span>`;
+        }
+      }
     }
 
-    function fecharTelegram() { tg.close(); }
+    function navegarPara(pagina) {
+      const tecnicoAtual = localStorage.getItem('userTecnico') || 'Técnico';
+      window.location.href = `${pagina}?tecnico=${encodeURIComponent(tecnicoAtual)}`;
+    }
+
+    function fecharTelegram() { 
+      if (tg) tg.close(); 
+    }
 
     function filtrarPorStatus(status) {
       const tecnicoAtual = localStorage.getItem('userTecnico') || 'Técnico';
-      const urlParams = new URLSearchParams(window.location.search);
-      const fotoAtual = urlParams.get('foto') || '';
-
-      window.location.href = `buscar.html?status=${status}&tecnico=${encodeURIComponent(tecnicoAtual)}&foto=${encodeURIComponent(fotoAtual)}`;
+      window.location.href = `buscar.html?status=${status}&tecnico=${encodeURIComponent(tecnicoAtual)}`;
     }
 
     const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
     const URL_GVIZ = `https://docs.google.com/spreadsheets/d/${ID_PLANILHA}/gviz/tq?tqx=out:json`;
 
     async function carregarDashboard() {
+      const feedContainer = document.getElementById('feedRecente');
       try {
         const response = await fetch(URL_GVIZ);
         const text = await response.text();
-        const jsonString = text.substring(47, text.length - 2);
+        
+        const start = text.indexOf('{');
+        const end = text.lastIndexOf('}') + 1;
+        const jsonString = text.substring(start, end);
         const data = JSON.parse(jsonString);
 
         const rows = data.table.rows;
-        if (!rows || rows.length === 0) return;
+        if (!rows || rows.length === 0) {
+          if (feedContainer) feedContainer.innerHTML = '<div style="text-align:center; padding:15px;">Nenhum registro encontrado.</div>';
+          return;
+        }
 
         let abertos = 0, andamento = 0, concluidos = 0;
 
         const ocorrencias = rows.map(r => {
           const c = r.c;
-          const status = c && c[6] ? String(c[6].v) : '';
+          const status = c && c[6] && c[6].v ? String(c[6].v) : '';
           
           if (status.includes('Aberto')) abertos++;
           else if (status.includes('Andamento')) andamento++;
           else if (status.includes('Concluído')) concluidos++;
 
           return {
-            id: c && c[0] ? c[0].v : '',
-            maquina: c && c[3] ? c[3].v : '',
-            descricao: c && c[5] ? c[5].v : '',
-            status: status
+            id: c && c[0] && c[0].v !== null ? c[0].v : '',
+            maquina: c && c[3] && c[3].v !== null ? c[3].v : 'N/A',
+            descricao: c && c[5] && c[5].v !== null ? c[5].v : 'Sem Descrição',
+            status: status || 'Sem Status'
           };
         });
 
@@ -482,28 +473,32 @@
         document.getElementById('kpiConcluidos').innerText = concluidos;
 
         const ultimas = ocorrencias.reverse().slice(0, 10);
-        const feedContainer = document.getElementById('feedRecente');
-        feedContainer.innerHTML = '';
-
-        ultimas.forEach(item => {
-          const itemDiv = document.createElement('div');
-          itemDiv.className = 'feed-item';
-          itemDiv.innerHTML = `
-            <div class="feed-header">
-              <span>#${item.id} - ${item.maquina}</span>
-              <span style="color: var(--primary-color);">${item.status}</span>
-            </div>
-            <div class="feed-desc">${item.descricao}</div>
-          `;
-          feedContainer.appendChild(itemDiv);
-        });
+        if (feedContainer) {
+          feedContainer.innerHTML = '';
+          ultimas.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'feed-item';
+            itemDiv.innerHTML = `
+              <div class="feed-header">
+                <span>#${item.id} - ${item.maquina}</span>
+                <span style="color: var(--primary-color);">${item.status}</span>
+              </div>
+              <div class="feed-desc">${item.descricao}</div>
+            `;
+            feedContainer.appendChild(itemDiv);
+          });
+        }
 
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
+        if (feedContainer) {
+          feedContainer.innerHTML = '<div style="text-align:center; padding:15px; color:var(--danger);">⚠️ Erro ao carregar últimos lançamentos.</div>';
+        }
       }
     }
 
     aplicarPreferencias();
+    carregarUsuario();
     carregarDashboard();
   </script>
 </body>

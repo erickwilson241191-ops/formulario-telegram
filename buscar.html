@@ -48,7 +48,6 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* BANNER DE CABEÇALHO HERO */
     .hero-banner {
       background: linear-gradient(135deg, #0088cc, #005580);
       color: #ffffff;
@@ -75,7 +74,6 @@
       font-weight: 500;
     }
 
-    /* CONTAINER DE PESQUISA E FILTROS FIXO */
     .search-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -126,7 +124,6 @@
       letter-spacing: 0.5px;
     }
 
-    /* CHIPS DE FILTRO DE SCROLL HORIZONTAL */
     .filter-group {
       margin-top: 12px;
     }
@@ -190,7 +187,6 @@
       opacity: 0.8;
     }
 
-    /* CONTADOR E ESTATÍSTICA DA LISTA */
     #contador-resultados {
       font-size: calc(13px * var(--font-scale));
       font-weight: 700;
@@ -207,7 +203,6 @@
       font-size: calc(14px * var(--font-scale));
     }
 
-    /* CARTÃO EXPANSÍVEL DE OCORRÊNCIA */
     .card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -264,7 +259,6 @@
       font-weight: 600;
     }
 
-    /* DETALHES EXPANDIDOS */
     .card-details {
       display: none;
       margin-top: 12px;
@@ -278,10 +272,7 @@
       display: block;
     }
 
-    .card.expanded .card-preview {
-      display: none;
-    }
-
+    .card.expanded .card-preview,
     .card.expanded .click-hint {
       display: none;
     }
@@ -323,7 +314,6 @@
       outline: none;
     }
 
-    /* EXIBIÇÃO DE MÍDIAS INCORPORADAS */
     .media-container {
       margin-top: 12px;
       text-align: center;
@@ -363,13 +353,11 @@
 </head>
 <body>
 
-  <!-- CABEÇALHO DA PÁGINA -->
   <div class="hero-banner">
     <h1>🔎 Consultar Ocorrências</h1>
     <p>Filtre, acompanhe e gerencie as manutenções</p>
   </div>
 
-  <!-- CONTAINER DE BUSCA E FILTROS -->
   <div class="search-card">
     <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="🔎 Digite máquina, técnico, id ou problema...">
 
@@ -489,14 +477,14 @@
         todasOcorrencias = rows.map(r => {
           const c = r.c;
           return {
-            id: c && c[0] ? c[0].v : '',
-            data: c && c[1] ? c[1].v : '',
-            tecnico: c && c[2] ? c[2].v : '',
-            maquina: c && c[3] ? c[3].v : '',
-            categoria: c && c[4] ? c[4].v : '',
-            descricao: c && c[5] ? c[5].v : '',
-            status: c && c[6] ? c[6].v : '',
-            midia: c && c[7] ? c[7].v : ''
+            id: c && c[0] && c[0].v !== null ? c[0].v : '',
+            data: c && c[1] && c[1].v !== null ? c[1].v : '',
+            tecnico: c && c[2] && c[2].v !== null ? c[2].v : '',
+            maquina: c && c[3] && c[3].v !== null ? c[3].v : '',
+            categoria: c && c[4] && c[4].v !== null ? c[4].v : '',
+            descricao: c && c[5] && c[5].v !== null ? c[5].v : '',
+            status: c && c[6] && c[6].v !== null ? c[6].v : '',
+            midia: c && c[7] && c[7].v !== null ? c[7].v : ''
           };
         });
 

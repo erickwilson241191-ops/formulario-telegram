@@ -451,11 +451,27 @@
     function parseDataHora(stringDataHora) {
       if (!stringDataHora) return new Date(0);
       try {
+        // Tenta interpretar ISO de datetime-local ou data DD/MM/YYYY HH:mm
+        if (stringDataHora.includes('T')) {
+          return new Date(stringDataHora);
+        }
         const [data, hora] = stringDataHora.split(' ');
         const [dia, mes, ano] = data.split('/');
         const [horas, minutos] = hora ? hora.split(':') : [0, 0];
         return new Date(ano, mes - 1, dia, horas, minutos);
       } catch (e) { return new Date(0); }
+    }
+
+    function formatarDataHoraVisual(str) {
+      if (!str) return 'Não informado';
+      const dt = parseDataHora(str);
+      if (dt.getTime() === 0) return str;
+      const dia = String(dt.getDate()).padStart(2, '0');
+      const mes = String(dt.getMonth() + 1).padStart(2, '0');
+      const ano = dt.getFullYear();
+      const horas = String(dt.getHours()).padStart(2, '0');
+      const minutos = String(dt.getMinutes()).padStart(2, '0');
+      return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
     }
 
     async function carregarOcorrencias() {
@@ -474,21 +490,34 @@
           return;
         }
 
+        /* 
+          Estrutura mapeada das colunas da planilha:
+          c[0]: ID
+          c[1]: Data/Hora de Início
+          c[2]: Data/Hora de Fim
+          c[3]: Técnico
+          c[4]: Máquina
+          c[5]: Categoria
+          c[6]: Descrição
+          c[7]: Status
+          c[8]: Mídia
+        */
         todasOcorrencias = rows.map(r => {
           const c = r.c;
           return {
             id: c && c[0] && c[0].v !== null ? c[0].v : '',
-            data: c && c[1] && c[1].v !== null ? c[1].v : '',
-            tecnico: c && c[2] && c[2].v !== null ? c[2].v : '',
-            maquina: c && c[3] && c[3].v !== null ? c[3].v : '',
-            categoria: c && c[4] && c[4].v !== null ? c[4].v : '',
-            descricao: c && c[5] && c[5].v !== null ? c[5].v : '',
-            status: c && c[6] && c[6].v !== null ? c[6].v : '',
-            midia: c && c[7] && c[7].v !== null ? c[7].v : ''
+            dataInicio: c && c[1] && c[1].v !== null ? c[1].v : '',
+            dataFim: c && c[2] && c[2].v !== null ? c[2].v : '',
+            tecnico: c && c[3] && c[3].v !== null ? c[3].v : '',
+            maquina: c && c[4] && c[4].v !== null ? c[4].v : '',
+            categoria: c && c[5] && c[5].v !== null ? c[5].v : '',
+            descricao: c && c[6] && c[6].v !== null ? c[6].v : '',
+            status: c && c[7] && c[7].v !== null ? c[7].v : '',
+            midia: c && c[8] && c[8].v !== null ? c[8].v : ''
           };
         });
 
-        todasOcorrencias.sort((a, b) => parseDataHora(b.data) - parseDataHora(a.data));
+        todasOcorrencias.sort((a, b) => parseDataHora(b.dataInicio) - parseDataHora(a.dataInicio));
         statusDiv.style.display = 'none';
 
         verificarFiltroURL();
@@ -523,7 +552,8 @@
           String(item.maquina).toLowerCase().includes(termo) ||
           String(item.descricao).toLowerCase().includes(termo) ||
           String(item.tecnico).toLowerCase().includes(termo) ||
-          String(item.data).toLowerCase().includes(termo)
+          String(item.dataInicio).toLowerCase().includes(termo) ||
+          String(item.dataFim).toLowerCase().includes(termo)
         );
 
         const bateuStatus = (filtroStatusAtivo === 'TODOS') || String(item.status).toLowerCase().includes(filtroStatusAtivo.toLowerCase());
@@ -531,7 +561,7 @@
 
         let bateuData = true;
         if (dtInicio || dtFim) {
-          const itemDt = parseDataHora(item.data);
+          const itemDt = parseDataHora(item.dataInicio);
           if (dtInicio && itemDt < dtInicio) bateuData = false;
           if (dtFim && itemDt > dtFim) bateuData = false;
         }
@@ -642,17 +672,22 @@
         const optAndamento = st.includes('Andamento') ? 'selected' : '';
         const optConcluido = st.includes('Concluído') ? 'selected' : '';
 
+        const dataInicioFmt = formatarDataHoraVisual(item.dataInicio);
+        const dataFimFmt = item.dataFim ? formatarDataHoraVisual(item.dataFim) : 'Em aberto';
+
         card.innerHTML = `
           <div class="card-header">
             <span class="card-id">#${item.id} - ${item.maquina} ${iconeMidia}</span>
             <span class="badge ${statusClass}">${item.status}</span>
           </div>
 
-          <div class="card-meta">📅 ${item.data}</div>
+          <div class="card-meta">⏱️ Início: ${dataInicioFmt}</div>
           <div class="card-preview">📝 ${item.descricao}</div>
           <div class="click-hint">👇 Toque para ver detalhes</div>
 
           <div class="card-details">
+            <div class="detail-item"><strong>⏱️ Data/Hora Início:</strong> ${dataInicioFmt}</div>
+            <div class="detail-item"><strong>🏁 Data/Hora Fim:</strong> ${dataFimFmt}</div>
             <div class="detail-item"><strong>🏷️ Categoria:</strong> ${item.categoria}</div>
             <div class="detail-item"><strong>👨‍🔧 Técnico Responsável:</strong> ${item.tecnico}</div>
             <div class="detail-item"><strong>📝 Descrição Completa:</strong><br>${item.descricao}</div>

@@ -152,8 +152,8 @@
 
     .bar-bg {
       background: var(--bg-color);
-      height: 10px;
-      border-radius: 5px;
+      height: 12px;
+      border-radius: 6px;
       overflow: hidden;
       border: 1px solid var(--card-border);
     }
@@ -162,8 +162,8 @@
       background: var(--primary-color);
       height: 100%;
       width: 0%;
-      border-radius: 5px;
-      transition: width 0.6s cubic-bezier(0.1, 0.5, 0.1, 1);
+      border-radius: 6px;
+      transition: width 0.8s cubic-bezier(0.1, 0.5, 0.1, 1);
     }
 
     #status-msg {
@@ -202,7 +202,7 @@
       </div>
       <div class="card-metric">
         <div class="num" id="totalConcluidas" style="color: var(--success);">0</div>
-        <div class="label">Concluídas</div>
+        <div class="label">Concluídas (🏁 <span id="totalComDataFim">0</span>)</div>
       </div>
     </div>
 
@@ -247,12 +247,16 @@
 
     aplicarPreferencias();
 
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-    
-    if (tg.BackButton) {
-      tg.BackButton.show();
-      tg.BackButton.onClick(() => window.location.href = 'index.html');
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.expand();
+      if (tg.BackButton) {
+        tg.BackButton.show();
+        tg.BackButton.onClick(() => {
+          const tecnico = localStorage.getItem('userTecnico') || 'Técnico';
+          window.location.href = `index.html?tecnico=${encodeURIComponent(tecnico)}`;
+        });
+      }
     }
 
     const ID_PLANILHA = '1rDqK6M7jGopEu1htqOZFRM0P_74yqLIjgY7bWOZEteg';
@@ -267,11 +271,13 @@
         if (!response.ok) throw new Error('Falha ao conectar com a planilha.');
 
         const text = await response.text();
-        const json = JSON.parse(text.substring(47, text.length - 2));
+        const start = text.indexOf('{');
+        const end = text.lastIndexOf('}') + 1;
+        const json = JSON.parse(text.substring(start, end));
         const rows = json.table.rows;
 
         if (!rows || rows.length === 0) {
-          statusMsg.innerText = 'ℹ️ Nenhum dado disponível para o indicador.';
+          statusMsg.innerText = 'ℹ️ Nenhum dado disponível para os indicadores.';
           return;
         }
 
@@ -279,6 +285,7 @@
         let abertas = 0;
         let andamento = 0;
         let concluidas = 0;
+        let comDataFim = 0;
 
         let maquinasCount = {};
         let statusCount = {};
@@ -286,10 +293,14 @@
         let tecnicosCount = {};
 
         rows.forEach(r => {
-          const tecnico = r.c[2]?.v || 'Indefinido';
-          const maquina = r.c[3]?.v || 'Indefinido';
-          const categoria = r.c[4]?.v || 'Indefinido';
-          const status = r.c[6]?.v || 'Indefinido';
+          const c = r.c;
+          const tecnico = c && c[2] && c[2].v !== null ? String(c[2].v) : 'Não Informado';
+          const dataFim = c && c[3] && c[3].v !== null ? String(c[3].v) : '';
+          const maquina = c && c[4] && c[4].v !== null ? String(c[4].v) : (c && c[3] && c[3].v !== null ? String(c[3].v) : 'Indefinida');
+          const categoria = c && c[5] && c[5].v !== null ? String(c[5].v) : 'Geral';
+          const status = c && c[7] && c[7].v !== null ? String(c[7].v) : (c && c[6] && c[6].v !== null ? String(c[6].v) : 'Indefinido');
+
+          if (dataFim.trim() !== '') comDataFim++;
 
           if (status.includes('Aberto')) abertas++;
           else if (status.includes('Andamento')) andamento++;
@@ -305,6 +316,7 @@
         document.getElementById('totalAbertas').innerText = abertas;
         document.getElementById('totalAndamento').innerText = andamento;
         document.getElementById('totalConcluidas').innerText = concluidas;
+        document.getElementById('totalComDataFim').innerText = comDataFim;
 
         // Renderização dos gráficos
         renderBarChart('chartStatus', statusCount, total, true);

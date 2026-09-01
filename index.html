@@ -224,7 +224,7 @@
       margin-bottom: 24px;
       border: 1px solid var(--card-border);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-      max-height: 260px;
+      max-height: 280px;
       overflow-y: auto;
     }
 
@@ -252,6 +252,22 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    .feed-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      font-size: calc(11px * var(--font-scale));
+    }
+
+    .feed-data-fim {
+      background: rgba(52, 199, 89, 0.12);
+      color: var(--success);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 700;
     }
 
     /* BOTÃO VOLTAR */
@@ -426,7 +442,6 @@
           img.style.objectFit = "cover";
           img.style.borderRadius = "50%";
 
-          // Se a imagem falhar ao carregar, exibe a inicial do nome
           img.onerror = function() {
             const inicial = nomeFinal !== 'Técnico' ? nomeFinal.charAt(0).toUpperCase() : '👤';
             avatarBtn.innerHTML = `<span>${inicial}</span>`;
@@ -479,9 +494,12 @@
 
         let abertos = 0, andamento = 0, concluidos = 0;
 
+        // Mapeamento correto de colunas:
+        // Coluna A (0): ID | Coluna D (3): Data Fim | Coluna E (4): Máquina | Coluna G (6): Descrição | Coluna H (7): Status
         const ocorrencias = rows.map(r => {
           const c = r.c;
-          const status = c && c[6] && c[6].v ? String(c[6].v) : '';
+          const status = c && c[7] && c[7].v ? String(c[7].v) : (c && c[6] && c[6].v ? String(c[6].v) : '');
+          const dataFimVal = c && c[3] && c[3].v !== null ? String(c[3].v) : '';
           
           if (status.includes('Aberto')) abertos++;
           else if (status.includes('Andamento')) andamento++;
@@ -489,8 +507,9 @@
 
           return {
             id: c && c[0] && c[0].v !== null ? c[0].v : '',
-            maquina: c && c[3] && c[3].v !== null ? c[3].v : 'N/A',
-            descricao: c && c[5] && c[5].v !== null ? c[5].v : 'Sem Descrição',
+            dataFim: dataFimVal,
+            maquina: c && c[4] && c[4].v !== null ? c[4].v : (c && c[3] && c[3].v !== null ? c[3].v : 'N/A'),
+            descricao: c && c[6] && c[6].v !== null ? c[6].v : (c && c[5] && c[5].v !== null ? c[5].v : 'Sem Descrição'),
             status: status || 'Sem Status'
           };
         });
@@ -505,12 +524,20 @@
           ultimas.forEach(item => {
             const itemDiv = document.createElement('div');
             itemDiv.className = 'feed-item';
+            
+            const badgeFim = item.dataFim 
+              ? `<span class="feed-data-fim">🏁 Fim: ${item.dataFim}</span>` 
+              : `<span style="color: var(--text-muted); font-size: 11px;">⏱️ Em aberto</span>`;
+
             itemDiv.innerHTML = `
               <div class="feed-header">
                 <span>#${item.id} - ${item.maquina}</span>
                 <span style="color: var(--primary-color);">${item.status}</span>
               </div>
               <div class="feed-desc">${item.descricao}</div>
+              <div class="feed-meta">
+                ${badgeFim}
+              </div>
             `;
             feedContainer.appendChild(itemDiv);
           });

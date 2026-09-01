@@ -98,13 +98,22 @@
       margin-bottom: 0;
     }
 
+    /* CORREÇÃO PARA A DATA NÃO VAZAR NA TELA EM DISPOSITIVOS MÓVEIS */
     .form-row {
       display: flex;
+      flex-direction: column;
       gap: 12px;
+    }
+
+    @media (min-width: 480px) {
+      .form-row {
+        flex-direction: row;
+      }
     }
 
     .form-row .form-group {
       flex: 1;
+      margin-bottom: 0;
     }
 
     label {
@@ -124,11 +133,12 @@
       border-radius: 12px;
       background-color: var(--bg-color);
       color: var(--text-color);
-      font-size: calc(15px * var(--font-scale));
+      font-size: calc(14px * var(--font-scale));
       box-sizing: border-box;
       font-weight: 600;
       outline: none;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      min-height: 48px;
     }
 
     select:focus, textarea:focus, input[type="text"]:focus, input[type="datetime-local"]:focus {
@@ -268,12 +278,12 @@
           <input type="datetime-local" id="dataInicio" required>
         </div>
         <div class="form-group">
-          <label for="dataFim">🏁 Fim </label>
+          <label for="dataFim">🏁 Fim (Opcional)</label>
           <input type="datetime-local" id="dataFim">
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" style="margin-top: 18px;">
         <label for="maquina">🏭 Máquina / Equipamento</label>
         <select id="maquina" required>
           <option value="" disabled selected>Selecione a máquina...</option>
@@ -460,7 +470,7 @@
       });
     }
 
-    // Preenche apenas a Data de Início com o horário atual
+    // Preenche apenas a Data de Início com o horário atual local
     function inicializarDataInicio() {
       const agora = new Date();
       const timezoneOffset = agora.getTimezoneOffset() * 60000;
@@ -575,8 +585,9 @@
         const json = JSON.parse(text.substring(47, text.length - 2));
         const rows = json.table.rows;
 
+        // Mapeamento correto de colunas (A=0, B=1, C=2, D=3, E=4/Máquina, F=5, G=6/Descrição, H=7/Status)
         const historico = rows
-          .map(r => ({ maquina: r.c[3]?.v, desc: r.c[5]?.v, status: r.c[6]?.v }))
+          .map(r => ({ maquina: r.c[4]?.v, desc: r.c[6]?.v, status: r.c[7]?.v }))
           .filter(r => r.maquina === maquina && r.status && String(r.status).includes('Concluído'));
 
         if (historico.length > 0) {
@@ -657,16 +668,29 @@
 
       btn.innerText = '⏳ Gravando ocorrência...';
 
+      // Formatação legível da data de término
+      const rawDataFim = document.getElementById('dataFim').value;
+      let dataFimFormatada = "";
+      if (rawDataFim) {
+        const d = new Date(rawDataFim);
+        const dia = String(d.getDate()).padStart(2, '0');
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const ano = d.getFullYear();
+        const horas = String(d.getHours()).padStart(2, '0');
+        const minutos = String(d.getMinutes()).padStart(2, '0');
+        dataFimFormatada = `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+      }
+
       const dados = {
         acao: 'CRIAR_OCORRENCIA',
         tecnico: document.getElementById('tecnico').value,
-        data_inicio: document.getElementById('dataInicio').value,
-        data_fim: document.getElementById('dataFim').value,
+        dataFim: dataFimFormatada,
         maquina: document.getElementById('maquina').value,
         categoria: document.getElementById('categoria').value,
         status: document.getElementById('status').value,
         descricao: document.getElementById('descricao').value,
-        midia: urlMidia
+        midia: urlMidia,
+        enviarGrupo: true
       };
 
       tg.sendData(JSON.stringify(dados));

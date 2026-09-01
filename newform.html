@@ -98,6 +98,15 @@
       margin-bottom: 0;
     }
 
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
     label {
       display: block;
       font-weight: 700;
@@ -108,7 +117,7 @@
       letter-spacing: 0.5px;
     }
 
-    select, textarea, input[type="text"], input[type="file"] {
+    select, textarea, input[type="text"], input[type="datetime-local"], input[type="file"] {
       width: 100%;
       padding: 14px;
       border: 1px solid var(--card-border);
@@ -122,7 +131,7 @@
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
-    select:focus, textarea:focus, input[type="text"]:focus {
+    select:focus, textarea:focus, input[type="text"]:focus, input[type="datetime-local"]:focus {
       border-color: var(--primary-color);
     }
 
@@ -188,7 +197,7 @@
       cursor: not-allowed;
     }
 
-    /* CUSTOMIZAÇÃO & OVERRIDE PARA CHOICES.JS SE ENQUADRAR AO DASHBOARD */
+    /* OVERRIDE CHOICES.JS */
     .choices {
       width: 100% !important;
       max-width: 100% !important;
@@ -250,6 +259,18 @@
       <div class="form-group">
         <label for="tecnico">👤 Técnico Responsável</label>
         <input type="text" id="tecnico" readonly placeholder="Carregando nome...">
+      </div>
+
+      <!-- CAMPOS DE DATA E HORA DE INÍCIO / FIM -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="dataInicio">⏱️ Início</label>
+          <input type="datetime-local" id="dataInicio" required>
+        </div>
+        <div class="form-group">
+          <label for="dataFim">🏁 Fim (Opcional)</label>
+          <input type="datetime-local" id="dataFim">
+        </div>
       </div>
 
       <div class="form-group">
@@ -439,8 +460,18 @@
       });
     }
 
+    // Preenche apenas a Data de Início com o horário atual
+    function inicializarDataInicio() {
+      const agora = new Date();
+      const timezoneOffset = agora.getTimezoneOffset() * 60000;
+      const dataLocal = new Date(agora.getTime() - timezoneOffset).toISOString().slice(0, 16);
+
+      document.getElementById('dataInicio').value = dataLocal;
+    }
+
     let choicesInstance = null;
     document.addEventListener('DOMContentLoaded', () => {
+      inicializarDataInicio();
       const selectMaquina = document.getElementById('maquina');
       
       try {
@@ -471,12 +502,10 @@
       const urlParams = new URLSearchParams(window.location.search);
       let paramTecnico = urlParams.get('tecnico') || urlParams.get('nome');
 
-      // Limpa valores de fallback inválidos
       if (['None', 'null', 'undefined', 'Técnico Não Identificado', ''].includes(paramTecnico)) {
         paramTecnico = null;
       }
 
-      // Busca dados gravados na sessão ou Telegram
       const tecnicoSalvo = localStorage.getItem('userTecnico') || localStorage.getItem('userCustomName');
       const userTelegram = window.Telegram?.WebApp?.initDataUnsafe?.user;
       let nomeTelegram = '';
@@ -484,7 +513,6 @@
         nomeTelegram = `${userTelegram.first_name || ''} ${userTelegram.last_name || ''}`.trim() || userTelegram.username;
       }
 
-      // Define hierarquia unificada
       let nomeFinal = "Técnico";
 
       if (paramTecnico) {
@@ -495,7 +523,6 @@
         nomeFinal = nomeTelegram;
       }
 
-      // Garante a gravação no celular
       localStorage.setItem('userTecnico', nomeFinal);
 
       const campoTecnico = document.getElementById('tecnico');
@@ -588,13 +615,11 @@
       const fileInput = document.getElementById('inputMidia');
       let urlMidia = "";
 
-      // Credenciais Cloudinary
       const cloudName = "ecioeynd";
       const uploadPreset = "bot_telegram";
 
       btn.disabled = true;
 
-      // Se houver arquivo selecionado, faz upload primeiro
       if (fileInput.files.length > 0) {
         btn.innerText = '⏳ Enviando mídia...';
 
@@ -635,6 +660,8 @@
       const dados = {
         acao: 'CRIAR_OCORRENCIA',
         tecnico: document.getElementById('tecnico').value,
+        data_inicio: document.getElementById('dataInicio').value,
+        data_fim: document.getElementById('dataFim').value,
         maquina: document.getElementById('maquina').value,
         categoria: document.getElementById('categoria').value,
         status: document.getElementById('status').value,

@@ -126,7 +126,7 @@
       letter-spacing: 0.5px;
     }
 
-    select, textarea, input[type="text"], input[type="datetime-local"], input[type="file"] {
+    select, textarea, input[type="text"], input[type="datetime-local"] {
       width: 100%;
       padding: 14px;
       border: 1px solid var(--card-border);
@@ -153,6 +153,39 @@
     textarea {
       resize: vertical;
       min-height: 110px;
+    }
+
+    /* BOTÃO ÚNICO DE MÍDIA */
+    .btn-media-single {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: var(--bg-color);
+      border: 1px dashed var(--primary-color);
+      padding: 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: calc(14px * var(--font-scale));
+      color: var(--primary-color);
+      text-align: center;
+      box-sizing: border-box;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-media-single:active {
+      background: var(--card-border);
+    }
+
+    .media-preview-info {
+      font-size: calc(12px * var(--font-scale));
+      color: var(--primary-color);
+      font-weight: 600;
+      margin-top: 8px;
+      display: none;
+      word-break: break-all;
     }
 
     /* ESTILIZAÇÃO DOS ENVIOS E CAIXAS DE ALERTA */
@@ -444,10 +477,16 @@
         <textarea id="descricao" placeholder="Descreva os detalhes aqui..." required></textarea>
       </div>
 
-      <!-- Anexo (Cloudinary Direct) -->
+      <!-- BOTÃO ÚNICO DE MÍDIA (FOTO/VÍDEO DA GALERIA OU CÂMERA DA HORA) -->
       <div class="form-group">
-        <label for="inputMidia">📷 Anexar Foto ou Vídeo (Opcional)</label>
-        <input type="file" id="inputMidia" accept="image/*,video/*">
+        <label>📷 Mídia / Anexo (Opcional)</label>
+        
+        <label for="inputMidia" class="btn-media-single">
+          📷 Anexar Foto ou Vídeo
+          <input type="file" id="inputMidia" accept="image/*,video/*" style="display: none;" onchange="gerenciarSelecaoMidia(this)">
+        </label>
+
+        <div id="previewInfo" class="media-preview-info"></div>
       </div>
 
     </div>
@@ -470,13 +509,24 @@
       });
     }
 
-    // Preenche apenas a Data de Início com o horário atual local
+    // Preenche a Data de Início com o horário atual local
     function inicializarDataInicio() {
       const agora = new Date();
       const timezoneOffset = agora.getTimezoneOffset() * 60000;
       const dataLocal = new Date(agora.getTime() - timezoneOffset).toISOString().slice(0, 16);
 
       document.getElementById('dataInicio').value = dataLocal;
+    }
+
+    // Exibe o nome do arquivo selecionado
+    function gerenciarSelecaoMidia(input) {
+      const preview = document.getElementById('previewInfo');
+      if (input.files && input.files[0]) {
+        preview.innerText = `📎 Arquivo pronto: ${input.files[0].name}`;
+        preview.style.display = 'block';
+      } else {
+        preview.style.display = 'none';
+      }
     }
 
     let choicesInstance = null;
@@ -585,7 +635,7 @@
         const json = JSON.parse(text.substring(47, text.length - 2));
         const rows = json.table.rows;
 
-        // Mapeamento correto de colunas (A=0, B=1, C=2, D=3, E=4/Máquina, F=5, G=6/Descrição, H=7/Status)
+        // Mapeamento correto de colunas
         const historico = rows
           .map(r => ({ maquina: r.c[4]?.v, desc: r.c[6]?.v, status: r.c[7]?.v }))
           .filter(r => r.maquina === maquina && r.status && String(r.status).includes('Concluído'));
@@ -623,7 +673,8 @@
       e.preventDefault();
 
       const btn = document.getElementById('btnSalvar');
-      const fileInput = document.getElementById('inputMidia');
+      const inputMidia = document.getElementById('inputMidia');
+      const file = inputMidia.files[0];
       let urlMidia = "";
 
       const cloudName = "ecioeynd";
@@ -631,10 +682,9 @@
 
       btn.disabled = true;
 
-      if (fileInput.files.length > 0) {
+      if (file) {
         btn.innerText = '⏳ Enviando mídia...';
 
-        const file = fileInput.files[0];
         const isVideo = file.type.startsWith('video/');
         const resourceType = isVideo ? 'video' : 'image';
 
@@ -668,7 +718,7 @@
 
       btn.innerText = '⏳ Gravando ocorrência...';
 
-      // Formatação legível da data de término
+      // Formatação da data de término
       const rawDataFim = document.getElementById('dataFim').value;
       let dataFimFormatada = "";
       if (rawDataFim) {
